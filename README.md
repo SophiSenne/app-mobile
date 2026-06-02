@@ -1,1 +1,42 @@
 # app-mobile
+
+Rede social voltada para moda e compartilhamento de looks
+
+## Tecnologias
+Kotlin
+.NET
+GCP
+Postgres
+
+Imagens (bucket)
+
+## Rotas
+Cadastro
+Login
+Logout
+Deletar conta
+Read meu usuario
+Read posts todos
+Read posts por usuario
+Criar post
+Deletar post
+Editar post
+Pesquisar por topico
+
+
+## Desenvolvimento
+[ ] Definir funcionalidades
+[ ] Wireframe
+[ ] Definir system design
+[ ] Definir rotas do back
+[ ] Codar back
+[ ] Card de imagem
+[ ] Tela de perfil
+[ ] Feed com imagens
+[ ] Barra de navegação
+[ ] Pesquisa
+[ ] Sistema de notificação
+[ ] Integração com API de previsão do tempo
+[ ] Integração com câmera do celular
+[ ] Extra: IA para gerar looks
+
