@@ -1,1 +1,7 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
 .env
+src/backend/Presentation/Hanger.WebApi/appsettings.json
