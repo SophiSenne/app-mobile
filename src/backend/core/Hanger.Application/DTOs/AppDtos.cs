@@ -1,23 +1,7 @@
 namespace Hanger.Application.DTOs;
 
-public sealed record RegisterRequest(
-    string Username,
-    string Email,
-    string Password,
-    string? Bio,
-    string? AvatarUrl,
-    string? LocationCity);
 
 public sealed record LoginRequest(string EmailOrUsername, string Password);
-
-public sealed record UserDto(
-    Guid Id,
-    string Username,
-    string Email,
-    string? Bio,
-    string? AvatarUrl,
-    string? LocationCity,
-    DateTime CreatedAt);
 
 public sealed record AuthResponse(UserDto User);
 

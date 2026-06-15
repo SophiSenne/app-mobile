@@ -40,3 +40,6 @@ Pesquisar por topico
 [ ] Integração com câmera do celular
 [ ] Extra: IA para gerar looks
 
+como executar
+dotnet build src/backend/core/Hanger.Application/
+dotnet run --project src/backend/Presentation/Hanger.WebApi/Hanger.csproj --urls http://localhost:5089
