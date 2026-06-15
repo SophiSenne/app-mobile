@@ -19,9 +19,8 @@ public static class DependencyInjection
 
         services.AddSingleton(new HangerSchema());
         services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
-        services.AddScoped<IHangerRepository, HangerRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
-        services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IAuthRepository, AuthRepository>();
         return services;
     }
 }

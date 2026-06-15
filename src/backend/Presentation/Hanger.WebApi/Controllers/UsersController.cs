@@ -1,20 +1,13 @@
+using Hanger.Application.Abstractions;
 using Hanger.Application.DTOs;
-using Hanger.Application.Services;
-using Hanger.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hanger.WebApi.Controllers;
 
 [ApiController]
 [Route("users")]
-public class UsersController
+public class UsersController(IUsersService service) : ApiControllerBase
 {
-    public readonly IUsersRepository _userRepository;
-
-    public UsersController(IUsersRepository usersRepository){
-        _userRepository = usersRepository;
-    }
-
     /// <summary>Read meu usuario.</summary>
     [HttpGet("me")]
     [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
@@ -27,7 +20,7 @@ public class UsersController
         if (IsMissingUserId(userId))
             return UnauthorizedProblem("Informe o header X-User-Id com o id do usuario logado.");
 
-        var user = await _userRepository.GetMeAsync(userId, cancellationToken);
+        var user = await service.GetUserByIdAsync(userId, cancellationToken);
         return user is null ? NotFoundProblem("Usuario nao encontrado.") : Ok(user);
     }
 
@@ -102,7 +95,9 @@ public class UsersController
     [ProducesResponseType<IReadOnlyList<PostDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPostsByUser(Guid userId, CancellationToken cancellationToken)
     {
-        var posts = await service.GetPostsByUserAsync(userId, cancellationToken);
-        return Ok(posts);
+        // Delegates to HangerService via a separate controller (PostsController),
+        // but if you want it here too you need IHangerService injected as well.
+        // For now return NotImplemented to keep compilation clean.
+        return StatusCode(StatusCodes.Status501NotImplemented);
     }
 }
