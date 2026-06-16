@@ -11,6 +11,12 @@ public static class DependencyInjection
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPostsService, PostsService>();
+        services.AddScoped<IFollowsService, FollowsService>();
+        services.AddScoped<ILikesService, LikesService>();
+        services.AddScoped<ICommentsService, CommentsService>();
+        services.AddScoped<INotificationsService, NotificationsService>();
+        services.AddScoped<ICategoriesService, CategoriesService>();
+
         return services;
     }
 }

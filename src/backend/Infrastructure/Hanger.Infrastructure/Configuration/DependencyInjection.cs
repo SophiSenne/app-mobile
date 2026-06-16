@@ -22,8 +22,13 @@ public static class DependencyInjection
         services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IAuthRepository, AuthRepository>();
-        services.AddScoped<IPostsService, PostsService>();
         services.AddScoped<IPostsRepository, PostsRepository>();
+        services.AddScoped<IFollowsRepository, FollowsRepository>();
+        services.AddScoped<ILikesRepository, LikesRepository>();
+        services.AddScoped<ICommentsRepository, CommentsRepository>();
+        services.AddScoped<INotificationsRepository, NotificationsRepository>();
+        services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+
         return services;
     }
 }

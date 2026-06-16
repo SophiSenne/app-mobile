@@ -5,3 +5,4 @@ obj/
 .vs/
 .env
 src/backend/Presentation/Hanger.WebApi/appsettings.json
+appsettings.json
