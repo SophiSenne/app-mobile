@@ -28,7 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ICommentsRepository, CommentsRepository>();
         services.AddScoped<INotificationsRepository, NotificationsRepository>();
         services.AddScoped<ICategoriesRepository, CategoriesRepository>();
-        services.AddScoped<IStorageRepository, SupabaseStorageRepository>();
+        services.AddHttpClient<IStorageRepository, SupabaseStorageRepository>();
 
         return services;
     }
