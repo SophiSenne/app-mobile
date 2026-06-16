@@ -25,12 +25,12 @@ Pesquisar por topico
 
 
 ## Desenvolvimento
-[ ] Definir funcionalidades
-[ ] Criar bucket para imagens
+[x] Definir funcionalidades
+[x] Criar bucket para imagens
 [ ] Wireframe
-[ ] Definir system design
-[ ] Definir rotas do back
-[ ] Codar back
+[x] Definir system design
+[x] Definir rotas do back
+[x] Codar back
 [ ] Card de imagem
 [ ] Tela de perfil
 [ ] Feed com imagens

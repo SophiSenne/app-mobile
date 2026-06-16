@@ -1,0 +1,832 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+  .phone {
+    width: 375px;
+    height: 780px;
+    background: #FAF8F6;
+    border-radius: 40px;
+    border: 2px solid #ddd;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 0 6px #111, 0 0 0 8px #444;
+  }
+
+  .status-bar {
+    background: #111;
+    color: #FAF8F6;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 10px 20px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  .topbar {
+    background: #FAF8F6;
+    border-bottom: 0.5px solid rgba(0,0,0,0.1);
+    padding: 12px 16px 10px;
+    flex-shrink: 0;
+  }
+
+  .topbar-row { display: flex; align-items: center; justify-content: space-between; }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: #111;
+  }
+
+  .logo-hook {
+    display: inline-block;
+    width: 8px;
+    height: 6px;
+    border: 2px solid #D63F72;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    margin-right: 2px;
+    position: relative;
+    top: 1px;
+  }
+
+  .temp-chip {
+    background: #111;
+    color: #C8A96E;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .temp-chip i { color: #D63F72; font-size: 13px; }
+
+  .search-bar {
+    margin-top: 10px;
+    background: #F0EDE8;
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-bar i { color: #888; font-size: 16px; }
+  .search-bar span { font-size: 13px; color: #aaa; }
+
+  .filters {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+
+  .filter-pill {
+    background: transparent;
+    border: 0.5px solid #ccc;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #555;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-pill.active {
+    background: #111;
+    color: #FAF8F6;
+    border-color: #111;
+  }
+
+  .scroll-area { flex: 1; overflow-y: auto; }
+
+  .post-card { padding: 0 0 16px 0; border-bottom: 0.5px solid rgba(0,0,0,0.07); }
+
+  .post-header { display: flex; align-items: center; gap: 10px; padding: 10px 16px 8px; }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .post-user { font-size: 13px; font-weight: 600; color: #111; }
+  .post-meta { font-size: 11px; color: #999; }
+
+  .post-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+  }
+
+  .post-img-placeholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    color: #bbb;
+  }
+
+  .post-actions { display: flex; gap: 16px; padding: 10px 16px 6px; }
+
+  .action-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; color: #555; cursor: pointer;
+    background: none; border: none;
+  }
+
+  .action-btn i { font-size: 18px; }
+  .action-btn.liked i { color: #D63F72; }
+
+  .post-caption { padding: 0 16px; font-size: 13px; color: #333; line-height: 1.5; }
+  .post-tags { padding: 4px 16px 0; display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .tag {
+    font-size: 11px;
+    color: #D63F72;
+    background: rgba(214,63,114,0.08);
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+
+  .bottom-nav {
+    background: #FAF8F6;
+    border-top: 0.5px solid rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px 0 14px;
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 3px; cursor: pointer; background: none; border: none;
+    font-size: 10px; color: #aaa;
+    transition: color 0.15s;
+    min-width: 44px;
+  }
+
+  .nav-btn i { font-size: 22px; }
+  .nav-btn.active { color: #111; }
+  .nav-btn.active i { color: #111; }
+
+  .nav-btn.post-btn {
+    background: #D63F72;
+    border-radius: 16px;
+    padding: 8px 16px;
+    color: #FAF8F6;
+    margin-top: -14px;
+  }
+
+  .nav-btn.post-btn i { color: #FAF8F6; font-size: 20px; }
+
+  .profile-header {
+    padding: 20px 16px 16px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+
+  .profile-top { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
+
+  .profile-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #5C3D52;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 700; color: #C8A96E;
+    flex-shrink: 0;
+  }
+
+  .profile-stats { display: flex; gap: 20px; flex: 1; justify-content: center; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 18px; font-weight: 700; color: #111; display: block; }
+  .stat-label { font-size: 11px; color: #999; }
+
+  .profile-name { font-size: 15px; font-weight: 700; color: #111; }
+  .profile-bio { font-size: 13px; color: #555; margin-top: 2px; line-height: 1.4; }
+
+  .profile-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 8px;
+    border: 0.5px solid #ccc;
+    border-radius: 8px;
+    background: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    cursor: pointer;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .grid-item {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #ccc;
+  }
+
+  .temp-modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(17,17,17,0.7);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .temp-card {
+    background: #FAF8F6;
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px 32px;
+    width: 100%;
+  }
+
+  .temp-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .temp-main {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .temp-big { font-size: 64px; font-weight: 800; color: #111; line-height: 1; }
+  .temp-unit { font-size: 22px; color: #999; margin-bottom: 8px; }
+
+  .temp-desc {
+    background: #111;
+    color: #FAF8F6;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .temp-desc strong { color: #C8A96E; }
+
+  .temp-row {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: #555;
+    padding: 6px 0;
+    border-bottom: 0.5px solid rgba(0,0,0,0.07);
+  }
+
+  .temp-row:last-child { border-bottom: none; }
+
+  .camera-screen {
+    background: #111;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .cam-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px;
+  }
+
+  .cam-btn { background: none; border: none; color: #FAF8F6; font-size: 13px; cursor: pointer; }
+  .cam-close { font-size: 22px; color: #FAF8F6; }
+
+  .cam-view {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    background: #1a1a1a;
+    flex-direction: column;
+    gap: 8px;
+    color: #555;
+    font-size: 13px;
+  }
+
+  .cam-view i { font-size: 48px; color: #333; }
+
+  .cam-corner {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-color: #FAF8F6;
+    border-style: solid;
+    opacity: 0.6;
+  }
+
+  .cam-corner.tl { top: 24px; left: 24px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+  .cam-corner.tr { top: 24px; right: 24px; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+  .cam-corner.bl { bottom: 24px; left: 24px; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+  .cam-corner.br { bottom: 24px; right: 24px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+  .cam-controls {
+    padding: 20px 24px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .cam-shutter {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #FAF8F6;
+    border: 3px solid rgba(255,255,255,0.4);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .cam-shutter-inner {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #FAF8F6;
+  }
+
+  .cam-side { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: #FAF8F6; cursor: pointer; border: none; }
+  .cam-side i { font-size: 20px; }
+
+  .menu-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(17,17,17,0.5);
+    z-index: 100;
+    display: flex;
+  }
+
+  .menu-drawer {
+    width: 80%;
+    background: #FAF8F6;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .menu-header {
+    background: #111;
+    padding: 48px 20px 24px;
+  }
+
+  .menu-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #5C3D52;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: #C8A96E;
+    margin-bottom: 12px;
+  }
+
+  .menu-name { font-size: 16px; font-weight: 700; color: #FAF8F6; }
+  .menu-handle { font-size: 12px; color: #C8A96E; letter-spacing: 0.06em; }
+
+  .menu-items { padding: 16px 0; flex: 1; }
+
+  .menu-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 20px;
+    font-size: 14px; color: #222; cursor: pointer;
+    border-bottom: 0.5px solid rgba(0,0,0,0.05);
+    background: none; border-left: none; border-right: none; border-top: none;
+    width: 100%; text-align: left;
+  }
+
+  .menu-item i { font-size: 20px; color: #555; }
+  .menu-item.danger { color: #D63F72; }
+  .menu-item.danger i { color: #D63F72; }
+
+  .menu-close-area {
+    width: 20%;
+    cursor: pointer;
+  }
+
+  .notif-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #D63F72;
+    margin-left: auto;
+  }
+</style>
+
+<div style="padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+  <h2 class="sr-only" style="position:absolute;left:-9999px">Protótipo interativo do app Hanger — navegue entre as telas</h2>
+
+  <div class="phone" id="app">
+
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="letter-spacing:0.02em">São Paulo · 28°C</span>
+      <span style="display:flex;gap:4px;align-items:center">
+        <i class="ti ti-wifi" style="font-size:13px;color:#FAF8F6"></i>
+        <i class="ti ti-battery-3" style="font-size:13px;color:#FAF8F6"></i>
+      </span>
+    </div>
+
+    <!-- FEED SCREEN -->
+    <div class="screen active" id="screen-feed">
+      <div class="topbar">
+        <div class="topbar-row">
+          <div style="display:flex;align-items:center;gap:6px">
+            <button onclick="showMenu()" style="background:none;border:none;cursor:pointer;padding:0;margin-right:4px">
+              <i class="ti ti-menu-2" style="font-size:22px;color:#111"></i>
+            </button>
+            <span class="logo-text"><span class="logo-hook"></span>HANGER</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button onclick="showTemp()" class="temp-chip">
+              <i class="ti ti-thermometer"></i>
+              28°C
+            </button>
+            <button onclick="goTo('profile')" style="background:none;border:none;cursor:pointer">
+              <div class="avatar" style="background:#5C3D52;color:#C8A96E;font-size:13px">MC</div>
+            </button>
+          </div>
+        </div>
+        <div class="search-bar" onclick="focusSearch()">
+          <i class="ti ti-search"></i>
+          <span>Buscar looks, marcas, pessoas...</span>
+        </div>
+      </div>
+
+      <div class="filters">
+        <span class="filter-pill active">Todos</span>
+        <span class="filter-pill">Seguindo</span>
+        <span class="filter-pill">Casual</span>
+        <span class="filter-pill">Trabalho</span>
+        <span class="filter-pill">Festa</span>
+        <span class="filter-pill">Esporte</span>
+      </div>
+
+      <div class="scroll-area">
+        <!-- Post 1 -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="avatar" style="background:#D63F72;color:#FAF8F6">JL</div>
+            <div style="flex:1">
+              <div class="post-user">julia.looks</div>
+              <div class="post-meta">São Paulo · há 23 min</div>
+            </div>
+            <i class="ti ti-dots" style="font-size:18px;color:#aaa;cursor:pointer"></i>
+          </div>
+          <div class="post-img-placeholder" style="background:#e8e2dc">
+            <i class="ti ti-shirt" style="font-size:48px;color:#C8A96E"></i>
+            <span>Look do dia</span>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn liked">
+              <i class="ti ti-heart-filled"></i> 284
+            </button>
+            <button class="action-btn">
+              <i class="ti ti-message-circle"></i> 31
+            </button>
+            <button class="action-btn">
+              <i class="ti ti-share"></i>
+            </button>
+            <button class="action-btn" style="margin-left:auto">
+              <i class="ti ti-bookmark"></i>
+            </button>
+          </div>
+          <div class="post-caption"><strong>julia.looks</strong> Esse vestido midi com sandália rasteira está perfeito para o calor de São Paulo! ☀️</div>
+          <div class="post-tags"><span class="tag">#casual</span><span class="tag">#vestido</span><span class="tag">#verão</span></div>
+        </div>
+
+        <!-- Post 2 -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="avatar" style="background:#5C3D52;color:#C8A96E">RM</div>
+            <div style="flex:1">
+              <div class="post-user">rafael.moda</div>
+              <div class="post-meta">Rio de Janeiro · há 1h</div>
+            </div>
+            <i class="ti ti-dots" style="font-size:18px;color:#aaa;cursor:pointer"></i>
+          </div>
+          <div class="post-img-placeholder" style="background:#dde4e0">
+            <i class="ti ti-tie" style="font-size:48px;color:#5C3D52"></i>
+            <span>Estilo executivo</span>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn">
+              <i class="ti ti-heart"></i> 142
+            </button>
+            <button class="action-btn">
+              <i class="ti ti-message-circle"></i> 18
+            </button>
+            <button class="action-btn">
+              <i class="ti ti-share"></i>
+            </button>
+            <button class="action-btn" style="margin-left:auto">
+              <i class="ti ti-bookmark"></i>
+            </button>
+          </div>
+          <div class="post-caption"><strong>rafael.moda</strong> Reunião importante hoje. Blazer oversized + calça alfaiataria nunca decepciona 🔥</div>
+          <div class="post-tags"><span class="tag">#trabalho</span><span class="tag">#blazer</span><span class="tag">#moda masculina</span></div>
+        </div>
+
+        <!-- Post 3 -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="avatar" style="background:#C8A96E;color:#111">AS</div>
+            <div style="flex:1">
+              <div class="post-user">ana.style</div>
+              <div class="post-meta">Curitiba · há 3h</div>
+            </div>
+            <i class="ti ti-dots" style="font-size:18px;color:#aaa;cursor:pointer"></i>
+          </div>
+          <div class="post-img-placeholder" style="background:#f0eae2">
+            <i class="ti ti-hanger" style="font-size:48px;color:#D63F72"></i>
+            <span>Combinação do dia</span>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn">
+              <i class="ti ti-heart"></i> 509
+            </button>
+            <button class="action-btn">
+              <i class="ti ti-message-circle"></i> 67
+            </button>
+            <button class="action-btn">
+              <i class="ti ti-share"></i>
+            </button>
+            <button class="action-btn" style="margin-left:auto">
+              <i class="ti ti-bookmark-filled" style="color:#111"></i>
+            </button>
+          </div>
+          <div class="post-caption"><strong>ana.style</strong> Friorenta aqui! Trench coat caramelo com bota cano curto é a minha salvação nos 15°C de Curitiba 🍂</div>
+          <div class="post-tags"><span class="tag">#outono</span><span class="tag">#trenchcoat</span><span class="tag">#layering</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div class="screen" id="screen-profile">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,0.08);flex-shrink:0">
+        <button onclick="goTo('feed')" style="background:none;border:none;cursor:pointer">
+          <i class="ti ti-arrow-left" style="font-size:22px;color:#111"></i>
+        </button>
+        <span style="font-size:15px;font-weight:700;color:#111;flex:1">Meu Perfil</span>
+        <button onclick="showMenu()" style="background:none;border:none;cursor:pointer">
+          <i class="ti ti-menu-2" style="font-size:22px;color:#111"></i>
+        </button>
+      </div>
+      <div class="scroll-area">
+        <div class="profile-header">
+          <div class="profile-top">
+            <div class="profile-avatar">MC</div>
+            <div class="profile-stats">
+              <div class="stat"><span class="stat-num">147</span><span class="stat-label">posts</span></div>
+              <div class="stat"><span class="stat-num">2.4K</span><span class="stat-label">seguidores</span></div>
+              <div class="stat"><span class="stat-num">318</span><span class="stat-label">seguindo</span></div>
+            </div>
+          </div>
+          <div class="profile-name">Maria Clara ✦</div>
+          <div class="profile-bio">Apaixonada por moda sustentável 🌿<br>São Paulo · VISTA SUA HISTÓRIA</div>
+          <button class="profile-btn">Editar perfil</button>
+        </div>
+        <div style="display:flex;border-bottom:0.5px solid rgba(0,0,0,0.1);flex-shrink:0">
+          <div style="flex:1;text-align:center;padding:10px;border-bottom:2px solid #111;font-size:13px;font-weight:600">
+            <i class="ti ti-grid-3x3" style="font-size:18px"></i>
+          </div>
+          <div style="flex:1;text-align:center;padding:10px;font-size:13px;color:#aaa">
+            <i class="ti ti-bookmark" style="font-size:18px"></i>
+          </div>
+          <div style="flex:1;text-align:center;padding:10px;font-size:13px;color:#aaa">
+            <i class="ti ti-tag" style="font-size:18px"></i>
+          </div>
+        </div>
+        <div class="profile-grid">
+          <div class="grid-item" style="background:#e8e2dc"><i class="ti ti-shirt" style="font-size:28px;color:#C8A96E"></i></div>
+          <div class="grid-item" style="background:#dde4e0"><i class="ti ti-hanger" style="font-size:28px;color:#5C3D52"></i></div>
+          <div class="grid-item" style="background:#f0eae2"><i class="ti ti-shirt" style="font-size:28px;color:#D63F72"></i></div>
+          <div class="grid-item" style="background:#eee7dd"><i class="ti ti-hanger" style="font-size:28px;color:#C8A96E"></i></div>
+          <div class="grid-item" style="background:#e0dbd6"><i class="ti ti-shirt" style="font-size:28px;color:#5C3D52"></i></div>
+          <div class="grid-item" style="background:#f5f0ea"><i class="ti ti-hanger" style="font-size:28px;color:#D63F72"></i></div>
+          <div class="grid-item" style="background:#dce3e1"><i class="ti ti-shirt" style="font-size:28px;color:#5C3D52"></i></div>
+          <div class="grid-item" style="background:#ede5db"><i class="ti ti-hanger" style="font-size:28px;color:#C8A96E"></i></div>
+          <div class="grid-item" style="background:#e8dfd7"><i class="ti ti-shirt" style="font-size:28px;color:#D63F72"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMERA SCREEN -->
+    <div class="screen" id="screen-camera" style="background:#111">
+      <div class="cam-top">
+        <button class="cam-btn" onclick="goTo('feed')" style="font-size:13px;letter-spacing:0.06em">CANCELAR</button>
+        <span style="color:#FAF8F6;font-size:13px;font-weight:600;letter-spacing:0.1em">NOVO LOOK</span>
+        <button class="cam-btn" style="font-size:13px;letter-spacing:0.06em">GALERIA</button>
+      </div>
+      <div class="cam-view">
+        <div class="cam-corner tl"></div>
+        <div class="cam-corner tr"></div>
+        <div class="cam-corner bl"></div>
+        <div class="cam-corner br"></div>
+        <i class="ti ti-camera" style="font-size:52px;color:#444"></i>
+        <span style="color:#666;font-size:12px;letter-spacing:0.06em">POSICIONE SEU LOOK</span>
+      </div>
+      <div class="cam-controls" style="background:#111">
+        <button class="cam-side" onclick="">
+          <i class="ti ti-bolt"></i>
+        </button>
+        <button class="cam-shutter" onclick="showPostConfirm()">
+          <div class="cam-shutter-inner"></div>
+        </button>
+        <button class="cam-side" onclick="">
+          <i class="ti ti-camera-rotate"></i>
+        </button>
+      </div>
+      <div style="padding:0 16px 20px;display:flex;gap:8px;justify-content:center">
+        <span style="color:#C8A96E;font-size:11px;font-weight:600;letter-spacing:0.1em;opacity:0.9">FOTO</span>
+        <span style="color:#666;font-size:11px;letter-spacing:0.1em">VÍDEO</span>
+        <span style="color:#666;font-size:11px;letter-spacing:0.1em">BOOMERANG</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav" id="bottom-nav">
+      <button class="nav-btn active" id="nav-feed" onclick="goTo('feed')">
+        <i class="ti ti-home"></i>
+        <span>Feed</span>
+      </button>
+      <button class="nav-btn" id="nav-search" onclick="goTo('feed')">
+        <i class="ti ti-search"></i>
+        <span>Buscar</span>
+      </button>
+      <button class="nav-btn post-btn" onclick="goTo('camera')">
+        <i class="ti ti-plus"></i>
+      </button>
+      <button class="nav-btn" id="nav-notif" onclick="">
+        <i class="ti ti-bell"></i>
+        <span>Notif.</span>
+      </button>
+      <button class="nav-btn" id="nav-profile" onclick="goTo('profile')">
+        <i class="ti ti-user"></i>
+        <span>Perfil</span>
+      </button>
+    </div>
+
+    <!-- TEMP MODAL -->
+    <div class="temp-modal" id="temp-modal" style="display:none" onclick="hideTemp(event)">
+      <div class="temp-card" onclick="event.stopPropagation()">
+        <div class="temp-title">
+          <span><i class="ti ti-map-pin" style="font-size:13px;margin-right:4px;color:#D63F72"></i>São Paulo</span>
+          <button onclick="hideTemp()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:20px;padding:0;line-height:1">×</button>
+        </div>
+        <div class="temp-main">
+          <div class="temp-big">28</div>
+          <div class="temp-unit">°C</div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:13px;color:#555;font-weight:600">Ensolarado</div>
+            <div style="font-size:12px;color:#aaa">Umidade 72%</div>
+            <div style="font-size:12px;color:#aaa">Vento 14 km/h</div>
+          </div>
+        </div>
+        <div class="temp-desc">
+          🌡️ Quente! Para hoje, <strong>Hanger sugere</strong> roupas leves em tecidos naturais — linho, algodão ou viscose. Evite peças escuras que absorvem calor. Sandálias abertas são a pedida certa.
+        </div>
+        <div class="temp-row"><span>Manhã</span><span style="font-weight:600">24°C ☀️</span></div>
+        <div class="temp-row"><span>Tarde</span><span style="font-weight:600">31°C 🌤️</span></div>
+        <div class="temp-row"><span>Noite</span><span style="font-weight:600">26°C 🌙</span></div>
+        <div class="temp-row"><span>Amanhã</span><span style="font-weight:600">27°C ⛅</span></div>
+      </div>
+    </div>
+
+    <!-- MENU DRAWER -->
+    <div class="menu-overlay" id="menu-overlay" style="display:none" onclick="hideMenu(event)">
+      <div class="menu-drawer" onclick="event.stopPropagation()">
+        <div class="menu-header">
+          <div class="menu-avatar">MC</div>
+          <div class="menu-name">Maria Clara</div>
+          <div class="menu-handle">@mariaclara.style</div>
+        </div>
+        <div class="menu-items">
+          <button class="menu-item" onclick="goTo('profile');hideMenu()">
+            <i class="ti ti-user" aria-hidden="true"></i> Meu perfil
+          </button>
+          <button class="menu-item" onclick="hideMenu()">
+            <i class="ti ti-bookmark" aria-hidden="true"></i> Salvos
+            <div class="notif-dot"></div>
+          </button>
+          <button class="menu-item" onclick="hideMenu()">
+            <i class="ti ti-heart" aria-hidden="true"></i> Curtidas
+          </button>
+          <button class="menu-item" onclick="hideMenu()">
+            <i class="ti ti-shopping-bag" aria-hidden="true"></i> Compras
+          </button>
+          <button class="menu-item" onclick="hideMenu()">
+            <i class="ti ti-palette" aria-hidden="true"></i> Meu estilo
+          </button>
+          <button class="menu-item" onclick="hideMenu()">
+            <i class="ti ti-settings" aria-hidden="true"></i> Configurações
+          </button>
+          <button class="menu-item" onclick="showTemp();hideMenu()">
+            <i class="ti ti-thermometer" aria-hidden="true"></i> Temperatura
+          </button>
+          <button class="menu-item danger" onclick="hideMenu()">
+            <i class="ti ti-logout" aria-hidden="true"></i> Sair
+          </button>
+        </div>
+        <div style="padding:12px 20px;border-top:0.5px solid rgba(0,0,0,0.07)">
+          <div style="font-size:10px;color:#ccc;letter-spacing:0.12em">HANGER © 2025 — VISTA SUA HISTÓRIA</div>
+        </div>
+      </div>
+      <div class="menu-close-area" onclick="hideMenu()"></div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:375px">
+    <button onclick="goTo('feed')" style="font-size:12px;border:0.5px solid #ddd;background:none;border-radius:20px;padding:6px 14px;cursor:pointer;color:#555">
+      <i class="ti ti-home" style="font-size:13px;vertical-align:-1px"></i> Feed
+    </button>
+    <button onclick="goTo('profile')" style="font-size:12px;border:0.5px solid #ddd;background:none;border-radius:20px;padding:6px 14px;cursor:pointer;color:#555">
+      <i class="ti ti-user" style="font-size:13px;vertical-align:-1px"></i> Perfil
+    </button>
+    <button onclick="goTo('camera')" style="font-size:12px;border:0.5px solid #ddd;background:none;border-radius:20px;padding:6px 14px;cursor:pointer;color:#555">
+      <i class="ti ti-camera" style="font-size:13px;vertical-align:-1px"></i> Câmera
+    </button>
+    <button onclick="showTemp()" style="font-size:12px;border:0.5px solid #ddd;background:none;border-radius:20px;padding:6px 14px;cursor:pointer;color:#555">
+      <i class="ti ti-thermometer" style="font-size:13px;vertical-align:-1px"></i> Temperatura
+    </button>
+    <button onclick="showMenu()" style="font-size:12px;border:0.5px solid #ddd;background:none;border-radius:20px;padding:6px 14px;cursor:pointer;color:#555">
+      <i class="ti ti-menu-2" style="font-size:13px;vertical-align:-1px"></i> Menu
+    </button>
+  </div>
+</div>
+
+<script>
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+
+  const bottomNav = document.getElementById('bottom-nav');
+  if (screen === 'camera') {
+    bottomNav.style.display = 'none';
+  } else {
+    bottomNav.style.display = 'flex';
+  }
+
+  document.querySelectorAll('.nav-btn[id^="nav-"]').forEach(b => b.classList.remove('active'));
+  if (screen === 'feed' && document.getElementById('nav-feed')) document.getElementById('nav-feed').classList.add('active');
+  if (screen === 'profile' && document.getElementById('nav-profile')) document.getElementById('nav-profile').classList.add('active');
+
+  hideTemp();
+  hideMenu();
+}
+
+function showTemp() {
+  document.getElementById('temp-modal').style.display = 'flex';
+}
+
+function hideTemp(e) {
+  if (!e || e.target === document.getElementById('temp-modal')) {
+    document.getElementById('temp-modal').style.display = 'none';
+  }
+}
+
+function showMenu() {
+  document.getElementById('menu-overlay').style.display = 'flex';
+}
+
+function hideMenu(e) {
+  document.getElementById('menu-overlay').style.display = 'none';
+}
+
+function focusSearch() {}
+
+function showPostConfirm() {
+  goTo('feed');
+}
+
+document.querySelectorAll('.filter-pill').forEach(p => {
+  p.addEventListener('click', function() {
+    document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
