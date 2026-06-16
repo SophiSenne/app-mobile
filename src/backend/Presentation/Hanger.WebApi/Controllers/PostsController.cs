@@ -35,8 +35,7 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
 
     /// <summary>
     /// Criar novo post com imagem.
-    /// Enviar como multipart/form-data com os campos abaixo.
-    /// O campo "image" é obrigatório.
+    /// Enviar como multipart/form-data — o campo "image" é obrigatório.
     /// </summary>
     [HttpPost]
     [Consumes("multipart/form-data")]
@@ -51,7 +50,6 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
         if (IsMissingUserId(userId))
             return UnauthorizedProblem("Informe o header X-User-Id com o id do usuario logado.");
 
-        // --- Validação da imagem ---
         if (form.Image is null || form.Image.Length == 0)
             return BadRequestProblem("O campo 'image' é obrigatório.");
 
@@ -61,7 +59,6 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
         if (form.Image.Length > MaxFileSizeBytes)
             return BadRequestProblem("A imagem não pode ultrapassar 10 MB.");
 
-        // --- Upload para o Supabase Storage ---
         string imageUrl;
         await using (var stream = form.Image.OpenReadStream())
         {
@@ -72,18 +69,15 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
                 cancellationToken);
         }
 
-        // --- Cria o post com a URL retornada pelo storage ---
-        var request = new CreatePostRequest
-        {
-            ImageUrl        = imageUrl,
-            Title           = form.Title,
-            Caption         = form.Caption,
-            WeatherCondition = form.WeatherCondition,
-            Temperature     = form.Temperature,
-            City            = form.City,
-            CategoryId      = form.CategoryId,
-            TypeId          = form.TypeId
-        };
+        var request = new CreatePostRequest(
+            imageUrl,
+            form.Title!,
+            form.Caption,
+            form.WeatherCondition,
+            form.Temperature,
+            form.City,
+            form.CategoryId,
+            form.TypeId);
 
         var post = await service.CreateAsync(userId, request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { postId = post.Id }, post);
@@ -106,7 +100,6 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
 
         string? imageUrl = null;
 
-        // Se uma nova imagem foi enviada, faz upload
         if (form.Image is not null && form.Image.Length > 0)
         {
             if (!AllowedImageTypes.Contains(form.Image.ContentType))
@@ -123,17 +116,15 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
                 cancellationToken);
         }
 
-        var request = new UpdatePostRequest
-        {
-            ImageUrl         = imageUrl,   // null = mantém a imagem atual (via COALESCE no SQL)
-            Title            = form.Title,
-            Caption          = form.Caption,
-            WeatherCondition = form.WeatherCondition,
-            Temperature      = form.Temperature,
-            City             = form.City,
-            CategoryId       = form.CategoryId,
-            TypeId           = form.TypeId
-        };
+        var request = new UpdatePostRequest(
+            imageUrl,
+            form.Title,
+            form.Caption,
+            form.WeatherCondition,
+            form.Temperature,
+            form.City,
+            form.CategoryId,
+            form.TypeId);
 
         var updated = await service.UpdateAsync(postId, userId, request, cancellationToken);
         return updated is null ? NotFoundProblem("Post não encontrado ou sem permissão para editar.") : Ok(updated);

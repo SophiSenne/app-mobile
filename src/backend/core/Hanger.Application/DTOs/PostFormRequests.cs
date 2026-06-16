@@ -15,10 +15,10 @@ public sealed class CreatePostFormRequest
     public string? Title { get; set; }
     public string? Caption { get; set; }
     public string? WeatherCondition { get; set; }
-    public decimal? Temperature { get; set; }
+    public double? Temperature { get; set; }
     public string? City { get; set; }
-    public Guid? CategoryId { get; set; }
-    public Guid? TypeId { get; set; }
+    public int? CategoryId { get; set; }
+    public int? TypeId { get; set; }
 }
 
 /// <summary>
@@ -33,8 +33,8 @@ public sealed class UpdatePostFormRequest
     public string? Title { get; set; }
     public string? Caption { get; set; }
     public string? WeatherCondition { get; set; }
-    public decimal? Temperature { get; set; }
+    public double? Temperature { get; set; }
     public string? City { get; set; }
-    public Guid? CategoryId { get; set; }
-    public Guid? TypeId { get; set; }
+    public int? CategoryId { get; set; }
+    public int? TypeId { get; set; }
 }
