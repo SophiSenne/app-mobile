@@ -40,6 +40,8 @@ Pesquisar por topico
 [ ] Integração com API de previsão do tempo
 [ ] Integração com câmera do celular
 [ ] Extra: IA para gerar looks
+[ ] testes unitarios no back
+[ ] acessibilidade no app
 
 como executar
 dotnet build src/backend/core/Hanger.Application/
