@@ -1,6 +1,7 @@
 using Hanger.Application.Abstractions;
 using Hanger.Infrastructure.Data;
 using Hanger.Infrastructure.Repositories;
+using Hanger.Application.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -21,6 +22,8 @@ public static class DependencyInjection
         services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IAuthRepository, AuthRepository>();
+        services.AddScoped<IPostsService, PostsService>();
+        services.AddScoped<IPostsRepository, PostsRepository>();
         return services;
     }
 }
