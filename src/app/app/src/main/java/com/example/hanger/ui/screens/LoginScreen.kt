@@ -1,4 +1,4 @@
-package com.hanger.app.ui.auth
+package com.hanger.app.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,18 +33,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hanger.app.data.model.User
+import com.hanger.app.ui.components.AuthSwitchRow
+import com.hanger.app.ui.components.TextField
+import com.hanger.app.ui.components.PrimaryButton
+import com.hanger.app.ui.components.ErrorBanner
 import com.example.hanger.ui.theme.HangerBlack
 import com.example.hanger.ui.theme.HangerCream
 import com.example.hanger.ui.theme.HangerGold
 import com.example.hanger.ui.theme.HangerGray
 import com.example.hanger.ui.theme.HangerPink
+import com.hanger.app.ui.auth.AuthViewModel
 import android.content.res.Configuration
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
- * Tela de Login - replica fiel de #screen-login do protótipo HTML.
+ * Tela de Login
  *
  * @param onLoginSuccess chamado com o usuário autenticado, retornado por POST /auth/login
  * @param onNavigateToRegister chamado ao tocar em "Criar conta"
@@ -152,7 +157,7 @@ fun LoginScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                AuthTextField(
+                TextField(
                     value = emailOrUsername,
                     onValueChange = {
                         emailOrUsername = it
@@ -164,7 +169,7 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                AuthTextField(
+                TextField(
                     value = password,
                     onValueChange = {
                         password = it
@@ -186,11 +191,11 @@ fun LoginScreen(
                 Spacer(Modifier.height(16.dp))
 
                 state.errorMessage?.let {
-                    AuthErrorBanner(it)
+                    ErrorBanner(it)
                     Spacer(Modifier.height(12.dp))
                 }
 
-                AuthPrimaryButton(
+                PrimaryButton(
                     text = "ENTRAR",
                     isLoading = state.isLoading,
                     onClick = { viewModel.login(emailOrUsername, password) }

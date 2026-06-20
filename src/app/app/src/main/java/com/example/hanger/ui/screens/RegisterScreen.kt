@@ -1,4 +1,4 @@
-package com.hanger.app.ui.auth
+package com.hanger.app.ui.screens
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -39,11 +39,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hanger.app.data.model.User
+import com.hanger.app.ui.components.PrimaryButton
+import com.hanger.app.ui.components.TextField
+import com.hanger.app.ui.components.AuthSwitchRow
+import com.hanger.app.ui.components.ErrorBanner
 import com.example.hanger.ui.theme.HangerBlack
 import com.example.hanger.ui.theme.HangerCream
 import com.example.hanger.ui.theme.HangerGold
 import com.example.hanger.ui.theme.HangerGray
 import com.example.hanger.ui.theme.HangerPink
+import com.hanger.app.ui.auth.AuthViewModel
 
 @Composable
 fun RegisterScreen(
@@ -112,7 +117,7 @@ fun RegisterScreen(
 
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    AuthTextField(
+                    TextField(
                         value = firstName,
                         onValueChange = { firstName = it; viewModel.clearError() },
                         label = "Nome"
@@ -120,7 +125,7 @@ fun RegisterScreen(
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    AuthTextField(
+                    TextField(
                         value = lastName,
                         onValueChange = { lastName = it; viewModel.clearError() },
                         label = "Sobrenome"
@@ -129,14 +134,14 @@ fun RegisterScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-            AuthTextField(
+            TextField(
                 value = username,
                 onValueChange = { username = it; viewModel.clearError() },
                 label = "@ usuário"
             )
 
             Spacer(Modifier.height(16.dp))
-            AuthTextField(
+            TextField(
                 value = email,
                 onValueChange = { email = it; viewModel.clearError() },
                 label = "E-mail",
@@ -144,7 +149,7 @@ fun RegisterScreen(
             )
 
             Spacer(Modifier.height(16.dp))
-            AuthTextField(
+            TextField(
                 value = password,
                 onValueChange = { password = it; viewModel.clearError() },
                 label = "Senha",
@@ -191,11 +196,11 @@ fun RegisterScreen(
             Spacer(Modifier.height(16.dp))
 
             state.errorMessage?.let {
-                AuthErrorBanner(it)
+                ErrorBanner(it)
                 Spacer(Modifier.height(12.dp))
             }
 
-            AuthPrimaryButton(
+            PrimaryButton(
                 text = "CRIAR CONTA",
                 isLoading = state.isLoading,
                 onClick = {

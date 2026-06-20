@@ -1,4 +1,4 @@
-package com.hanger.app.ui.auth
+package com.hanger.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,17 +40,8 @@ import com.example.hanger.ui.theme.HangerGrayLight
 import com.example.hanger.ui.theme.HangerInputBg
 import com.example.hanger.ui.theme.HangerPink
 
-/**
- * Campo de texto estilo "auth-input": fundo bege claro, vira branco com borda rosa no foco.
- *
- * O título do campo (ex: "Nome", "E-mail") não aparece fixo acima do input.
- * Em vez disso, ele é usado como `label` do OutlinedTextField: quando o campo
- * está vazio e sem foco, o título aparece centralizado, no lugar de um placeholder.
- * Ao focar ou digitar, o Material3 anima automaticamente esse título, encolhendo-o
- * e movendo-o para o canto superior esquerdo do campo.
- */
 @Composable
-fun AuthTextField(
+fun TextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -96,97 +87,4 @@ fun AuthTextField(
         ),
         modifier = modifier.fillMaxWidth()
     )
-}
-
-/** Botão principal preto estilo "auth-btn". */
-@Composable
-fun AuthPrimaryButton(
-    text: String,
-    onClick: () -> Unit,
-    isLoading: Boolean = false,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        enabled = !isLoading,
-        shape = RoundedCornerShape(14.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = HangerBlack,
-            contentColor = Color.White,
-            disabledContainerColor = HangerBlack.copy(alpha = 0.7f)
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                color = Color.White,
-                strokeWidth = 2.dp,
-                modifier = Modifier.height(20.dp)
-            )
-        } else {
-            Text(text, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-        }
-    }
-}
-
-/** Divisor "ou continue com". */
-@Composable
-fun AuthDivider(text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-    ) {
-        Box(
-            Modifier
-                .weight(1f)
-                .height(0.5.dp)
-                .background(HangerGrayLight)
-        )
-        Text(
-            text,
-            color = HangerGrayLight,
-            fontSize = 11.sp,
-            modifier = Modifier.padding(horizontal = 10.dp)
-        )
-        Box(
-            Modifier
-                .weight(1f)
-                .height(0.5.dp)
-                .background(HangerGrayLight)
-        )
-    }
-}
-
-/** Linha "Ainda não tem conta? Criar conta". */
-@Composable
-fun AuthSwitchRow(question: String, actionText: String, onClick: () -> Unit) {
-    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        Row {
-            Text(question, color = HangerGray, fontSize = 13.sp)
-            Text(
-                " $actionText",
-                color = HangerPink,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable(onClick = onClick)
-            )
-        }
-    }
-}
-
-/** Mensagem de erro estilo banner discreto, exibida acima do botão de ação. */
-@Composable
-fun AuthErrorBanner(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(HangerPink.copy(alpha = 0.08f), RoundedCornerShape(10.dp))
-            .padding(12.dp)
-    ) {
-        Text(message, color = HangerPink, fontSize = 12.sp)
-    }
 }

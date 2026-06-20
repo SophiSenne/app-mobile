@@ -9,8 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.hanger.ui.theme.HangerTheme
-import com.hanger.app.ui.auth.LoginScreen
-import com.hanger.app.ui.auth.RegisterScreen
+import com.hanger.app.ui.screens.LoginScreen
+import com.hanger.app.ui.screens.RegisterScreen
 
 private enum class AuthScreen {
     LOGIN, REGISTER
