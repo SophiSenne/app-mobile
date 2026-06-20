@@ -31,7 +31,7 @@ Pesquisar por topico
 [x] Definir system design
 [x] Definir rotas do back
 [x] Codar back
-[ ] Card de imagem
+[x] Card de imagem
 [ ] Tela de perfil
 [ ] Feed com imagens
 [ ] Barra de navegação
