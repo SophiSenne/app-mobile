@@ -47,7 +47,9 @@ fun TextField(
     label: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    singleLine: Boolean = true,
+    minLines: Int = 1
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -55,7 +57,8 @@ fun TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        singleLine = true,
+        singleLine = singleLine,
+        minLines = minLines,
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (isPassword && !passwordVisible) {

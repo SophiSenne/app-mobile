@@ -37,7 +37,6 @@ import com.example.hanger.ui.theme.HangerTextMuted
 fun FeedTopBar(
     temperatureLabel: String,
     userInitials: String,
-    onMenuClick: () -> Unit,
     onTemperatureClick: () -> Unit,
     onProfileClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -54,9 +53,6 @@ fun FeedTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onMenuClick) {
-                    Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = HangerInk)
-                }
                 Text(
                     text = "HANGER",
                     fontSize = 20.sp,

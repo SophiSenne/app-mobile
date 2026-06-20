@@ -49,7 +49,10 @@ class AuthViewModel(
         username: String,
         email: String,
         password: String,
-        acceptedTerms: Boolean
+        acceptedTerms: Boolean,
+        bio: String = "",
+        avatarUrl: String = "",
+        locationCity: String = ""
     ) {
         if (username.isBlank() || email.isBlank() || password.isBlank()) {
             uiState = uiState.copy(errorMessage = "Preencha todos os campos obrigatórios")
@@ -63,14 +66,15 @@ class AuthViewModel(
             uiState = uiState.copy(errorMessage = "Você precisa aceitar os Termos de Uso")
             return
         }
-        val bio = listOf(firstName, lastName).filter { it.isNotBlank() }.joinToString(" ")
         uiState = uiState.copy(isLoading = true, errorMessage = null)
         viewModelScope.launch {
             when (val result = repository.register(
                 username = username,
                 email = email,
                 password = password,
-                bio = bio
+                bio = bio,
+                avatarUrl = avatarUrl,
+                locationCity = locationCity
             )) {
                 is AuthResult.Success -> uiState = uiState.copy(
                     isLoading = false,

@@ -1,13 +1,17 @@
 package com.hanger.app.data.network
 
+import com.hanger.app.data.model.AvatarUploadResponse
 import com.hanger.app.data.model.CategoryDto
 import com.hanger.app.data.model.LikeDto
 import com.hanger.app.data.model.PostDto
 import com.hanger.app.data.model.User
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -54,4 +58,12 @@ interface ApiService {
 
     @GET("users/{userId}")
     suspend fun getUser(@Path("userId") userId: String): Response<User>
+
+    // ===== Upload =====
+
+    @Multipart
+    @POST("users/avatar")
+    suspend fun uploadAvatar(
+        @Part file: MultipartBody.Part
+    ): Response<AvatarUploadResponse>
 }

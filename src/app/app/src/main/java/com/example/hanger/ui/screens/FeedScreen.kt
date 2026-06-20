@@ -111,7 +111,6 @@ fun FeedScreen(
             FeedTopBar(
                 temperatureLabel = weatherState.snapshot?.let { "${it.currentTempC}°C" } ?: "—",
                 userInitials = userInitials,
-                onMenuClick = {},
                 onTemperatureClick = { showWeatherSheet = true },
                 onProfileClick = onNavigateToProfile,
                 onSearchClick = {}

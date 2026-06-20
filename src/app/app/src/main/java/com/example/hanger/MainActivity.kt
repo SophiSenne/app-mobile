@@ -12,9 +12,10 @@ import com.example.hanger.ui.theme.HangerTheme
 import com.hanger.app.data.model.User
 import com.hanger.app.ui.screens.FeedScreen
 import com.hanger.app.ui.screens.LoginScreen
+import com.hanger.app.ui.screens.ProfileScreen
 import com.hanger.app.ui.screens.RegisterScreen
 
-private enum class AppScreen { LOGIN, REGISTER, FEED }
+private enum class AppScreen { LOGIN, REGISTER, FEED, PROFILE }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +48,19 @@ class MainActivity : ComponentActivity() {
                             ?.take(2)
                             ?.uppercase()
                             ?: "ME",
-                        onNavigateToProfile = {}
+                        onNavigateToProfile = { screen = AppScreen.PROFILE }
                     )
+
+                    AppScreen.PROFILE -> {
+                        val user = loggedInUser
+                        if (user != null) {
+                            ProfileScreen(
+                                user = user,
+                                onNavigateBack = { screen = AppScreen.FEED },
+                                onNavigateToFeed = { screen = AppScreen.FEED }
+                            )
+                        }
+                    }
                 }
             }
         }
