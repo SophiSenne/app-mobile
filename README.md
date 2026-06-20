@@ -27,7 +27,7 @@ Pesquisar por topico
 ## Desenvolvimento
 [x] Definir funcionalidades
 [x] Criar bucket para imagens
-[ ] Wireframe
+[x] Wireframe
 [x] Definir system design
 [x] Definir rotas do back
 [x] Codar back

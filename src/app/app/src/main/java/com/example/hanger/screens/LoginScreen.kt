@@ -1,0 +1,237 @@
+package com.hanger.app.ui.auth
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hanger.app.data.model.User
+import com.hanger.app.ui.theme.HangerBlack
+import com.hanger.app.ui.theme.HangerCream
+import com.hanger.app.ui.theme.HangerGold
+import com.hanger.app.ui.theme.HangerGray
+import com.hanger.app.ui.theme.HangerPink
+
+/**
+ * Tela de Login - replica fiel de #screen-login do protótipo HTML.
+ *
+ * @param onLoginSuccess chamado com o usuário autenticado, retornado por POST /auth/login
+ * @param onNavigateToRegister chamado ao tocar em "Criar conta"
+ */
+@Composable
+fun LoginScreen(
+    onLoginSuccess: (User) -> Unit,
+    onNavigateToRegister: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
+) {
+    var emailOrUsername by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val state = viewModel.uiState
+
+    LaunchedEffect(state.loggedInUser) {
+        state.loggedInUser?.let { onLoginSuccess(it) }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(HangerCream)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // ===== Hero escuro com logo =====
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(HangerBlack)
+                .padding(top = 48.dp, bottom = 36.dp, start = 24.dp, end = 24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    "HANGER",
+                    color = HangerCream,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 6.sp
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "VISTA SUA HISTÓRIA",
+                    color = HangerGold,
+                    fontSize = 12.sp,
+                    letterSpacing = 2.sp
+                )
+                Spacer(Modifier.height(28.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
+                    EmojiCircle("\uD83D\uDC57", Color(0xFF5C3D52))
+                    EmojiCircle("\uD83D\uDC60", HangerPink)
+                    EmojiCircle("\uD83E\uDDE5", HangerGold)
+                }
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "Compartilhe seu estilo com o mundo",
+                    color = HangerGray,
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+        // ===== Corpo do formulário =====
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp)) {
+            Text(
+                "Entrar",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = HangerBlack
+            )
+            Text(
+                "Bem-vinda de volta ✨",
+                fontSize = 13.sp,
+                color = HangerGray,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+
+            AuthLabel("E-mail ou usuário")
+            AuthTextField(
+                value = emailOrUsername,
+                onValueChange = {
+                    emailOrUsername = it
+                    viewModel.clearError()
+                },
+                placeholder = "seu@email.com",
+                keyboardType = KeyboardType.Email
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            AuthLabel("Senha")
+            AuthTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    viewModel.clearError()
+                },
+                placeholder = "••••••••",
+                keyboardType = KeyboardType.Password,
+                isPassword = true
+            )
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                Text(
+                    "Esqueci minha senha",
+                    color = HangerGray,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            state.errorMessage?.let {
+                AuthErrorBanner(it)
+                Spacer(Modifier.height(12.dp))
+            }
+
+            AuthPrimaryButton(
+                text = "ENTRAR",
+                isLoading = state.isLoading,
+                onClick = { viewModel.login(emailOrUsername, password) }
+            )
+
+            AuthDivider("ou continue com")
+
+            SocialButton(
+                label = "Continuar com Google",
+                badgeText = "G",
+                badgeColor = Color(0xFFEA4335),
+                onClick = { /* TODO: integração Google Sign-In */ }
+            )
+            Spacer(Modifier.height(8.dp))
+            SocialButton(
+                label = "Continuar com Facebook",
+                badgeText = "f",
+                badgeColor = Color(0xFF1877F2),
+                onClick = { /* TODO: integração Facebook Login */ }
+            )
+
+            Spacer(Modifier.height(18.dp))
+
+            AuthSwitchRow(
+                question = "Ainda não tem conta?",
+                actionText = "Criar conta",
+                onClick = onNavigateToRegister
+            )
+        }
+    }
+}
+
+@Composable
+internal fun EmojiCircle(emoji: String, bg: Color) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .background(bg, CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(emoji, fontSize = 18.sp)
+    }
+}
+
+@Composable
+internal fun SocialButton(
+    label: String,
+    badgeText: String,
+    badgeColor: Color,
+    onClick: () -> Unit
+) {
+    OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        colors = OutlinedButtonDefaults.colors(contentColor = HangerBlack),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDDDDDD)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(badgeColor, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(badgeText, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.padding(horizontal = 4.dp))
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
