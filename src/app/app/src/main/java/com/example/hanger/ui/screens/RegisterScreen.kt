@@ -1,5 +1,6 @@
 package com.hanger.app.ui.auth
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,22 +35,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hanger.app.data.model.User
-import com.hanger.app.ui.theme.HangerBlack
-import com.hanger.app.ui.theme.HangerCream
-import com.hanger.app.ui.theme.HangerGold
-import com.hanger.app.ui.theme.HangerGray
-import com.hanger.app.ui.theme.HangerPink
+import com.example.hanger.ui.theme.HangerBlack
+import com.example.hanger.ui.theme.HangerCream
+import com.example.hanger.ui.theme.HangerGold
+import com.example.hanger.ui.theme.HangerGray
+import com.example.hanger.ui.theme.HangerPink
 
-/**
- * Tela de Cadastro - replica fiel de #screen-register do protótipo HTML.
- *
- * Mapeia os campos para o contrato POST /auth/register:
- * username, email, password, bio (nome + sobrenome), avatarUrl, locationCity.
- */
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: (User) -> Unit,
@@ -116,47 +113,42 @@ fun RegisterScreen(
 
             Row {
                 Column(modifier = Modifier.weight(1f)) {
-                    AuthLabel("Nome")
                     AuthTextField(
                         value = firstName,
                         onValueChange = { firstName = it; viewModel.clearError() },
-                        placeholder = "Maria"
+                        label = "Nome"
                     )
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    AuthLabel("Sobrenome")
                     AuthTextField(
                         value = lastName,
                         onValueChange = { lastName = it; viewModel.clearError() },
-                        placeholder = "Clara"
+                        label = "Sobrenome"
                     )
                 }
             }
 
             Spacer(Modifier.height(16.dp))
-            AuthLabel("@ usuário")
             AuthTextField(
                 value = username,
                 onValueChange = { username = it; viewModel.clearError() },
-                placeholder = "mariaclara.style"
+                label = "@ usuário"
             )
 
             Spacer(Modifier.height(16.dp))
-            AuthLabel("E-mail")
             AuthTextField(
                 value = email,
                 onValueChange = { email = it; viewModel.clearError() },
-                placeholder = "seu@email.com",
+                label = "E-mail",
                 keyboardType = KeyboardType.Email
             )
 
             Spacer(Modifier.height(16.dp))
-            AuthLabel("Senha")
             AuthTextField(
                 value = password,
                 onValueChange = { password = it; viewModel.clearError() },
-                placeholder = "Mín. 8 caracteres",
+                label = "Senha",
                 keyboardType = KeyboardType.Password,
                 isPassword = true
             )
@@ -219,15 +211,6 @@ fun RegisterScreen(
                 }
             )
 
-            AuthDivider("ou")
-
-            SocialButton(
-                label = "Cadastrar com Google",
-                badgeText = "G",
-                badgeColor = Color(0xFFEA4335),
-                onClick = { /* TODO: integração Google Sign-In */ }
-            )
-
             Spacer(Modifier.height(18.dp))
 
             AuthSwitchRow(
@@ -236,5 +219,20 @@ fun RegisterScreen(
                 onClick = onNavigateToLogin
             )
         }
+    }
+}
+
+@Preview(
+    name = "Login Screen",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun RegisterScreenPreview() {
+    MaterialTheme {
+        RegisterScreen(
+            onRegisterSuccess = {},
+            onNavigateToLogin = {}
+        )
     }
 }

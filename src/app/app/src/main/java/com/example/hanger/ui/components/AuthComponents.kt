@@ -34,31 +34,26 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hanger.app.ui.theme.HangerBlack
-import com.hanger.app.ui.theme.HangerGray
-import com.hanger.app.ui.theme.HangerGrayLight
-import com.hanger.app.ui.theme.HangerInputBg
-import com.hanger.app.ui.theme.HangerPink
+import com.example.hanger.ui.theme.HangerBlack
+import com.example.hanger.ui.theme.HangerGray
+import com.example.hanger.ui.theme.HangerGrayLight
+import com.example.hanger.ui.theme.HangerInputBg
+import com.example.hanger.ui.theme.HangerPink
 
-/** Label estilo "auth-label": uppercase, pequeno, com letter-spacing. */
-@Composable
-fun AuthLabel(text: String) {
-    Text(
-        text = text.uppercase(),
-        fontSize = 11.sp,
-        fontWeight = FontWeight.SemiBold,
-        color = HangerGray,
-        letterSpacing = 1.sp,
-        modifier = Modifier.padding(bottom = 5.dp)
-    )
-}
-
-/** Campo de texto estilo "auth-input": fundo bege claro, vira branco com borda rosa no foco. */
+/**
+ * Campo de texto estilo "auth-input": fundo bege claro, vira branco com borda rosa no foco.
+ *
+ * O título do campo (ex: "Nome", "E-mail") não aparece fixo acima do input.
+ * Em vez disso, ele é usado como `label` do OutlinedTextField: quando o campo
+ * está vazio e sem foco, o título aparece centralizado, no lugar de um placeholder.
+ * Ao focar ou digitar, o Material3 anima automaticamente esse título, encolhendo-o
+ * e movendo-o para o canto superior esquerdo do campo.
+ */
 @Composable
 fun AuthTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
+    label: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false
@@ -68,7 +63,7 @@ fun AuthTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, color = HangerGrayLight) },
+        label = { Text(label) },
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
@@ -95,7 +90,9 @@ fun AuthTextField(
             unfocusedBorderColor = Color.Transparent,
             cursorColor = HangerPink,
             focusedTextColor = HangerBlack,
-            unfocusedTextColor = HangerBlack
+            unfocusedTextColor = HangerBlack,
+            focusedLabelColor = HangerPink,
+            unfocusedLabelColor = HangerGrayLight
         ),
         modifier = modifier.fillMaxWidth()
     )

@@ -13,8 +13,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HangerTheme {
-
+            HangerTheme(darkTheme = true) {
+                //LoginScreen()
             }
         }
     }

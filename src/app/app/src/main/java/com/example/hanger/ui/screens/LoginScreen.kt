@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,12 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hanger.app.data.model.User
-import com.hanger.app.ui.theme.HangerBlack
-import com.hanger.app.ui.theme.HangerCream
-import com.hanger.app.ui.theme.HangerGold
-import com.hanger.app.ui.theme.HangerGray
-import com.hanger.app.ui.theme.HangerPink
+import com.example.hanger.ui.theme.HangerBlack
+import com.example.hanger.ui.theme.HangerCream
+import com.example.hanger.ui.theme.HangerGold
+import com.example.hanger.ui.theme.HangerGray
+import com.example.hanger.ui.theme.HangerPink
 import android.content.res.Configuration
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
@@ -66,10 +67,9 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(HangerCream)
+            .background(HangerBlack)
             .verticalScroll(rememberScrollState())
     ) {
-        // ===== Hero escuro com logo =====
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,18 +78,19 @@ fun LoginScreen(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(Modifier.height(50.dp))
                 Text(
                     "HANGER",
                     color = HangerCream,
-                    fontSize = 32.sp,
+                    fontSize = 40.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 6.sp
+                    letterSpacing = 7.sp
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     "VISTA SUA HISTÓRIA",
                     color = HangerGold,
-                    fontSize = 12.sp,
+                    fontSize = 15.sp,
                     letterSpacing = 2.sp
                 )
                 Spacer(Modifier.height(28.dp))
@@ -98,99 +99,111 @@ fun LoginScreen(
                     EmojiCircle("\uD83D\uDC60", HangerPink)
                     EmojiCircle("\uD83E\uDDE5", HangerGold)
                 }
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(28.dp))
                 Text(
                     "Compartilhe seu estilo com o mundo",
                     color = HangerGray,
-                    fontSize = 12.sp
+                    fontSize = 14.sp
                 )
+                Spacer(Modifier.height(10.dp))
             }
         }
 
-        // ===== Corpo do formulário =====
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp)) {
-            Text(
-                "Entrar",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = HangerBlack
-            )
-            Text(
-                "Bem-vinda de volta ✨",
-                fontSize = 13.sp,
-                color = HangerGray,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-
-            AuthLabel("E-mail ou usuário")
-            AuthTextField(
-                value = emailOrUsername,
-                onValueChange = {
-                    emailOrUsername = it
-                    viewModel.clearError()
-                },
-                placeholder = "seu@email.com",
-                keyboardType = KeyboardType.Email
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            AuthLabel("Senha")
-            AuthTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    viewModel.clearError()
-                },
-                placeholder = "••••••••",
-                keyboardType = KeyboardType.Password,
-                isPassword = true
-            )
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+        Spacer(Modifier.height(20.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(
+                        topStart = 24.dp,
+                        topEnd = 24.dp
+                    )
+                )
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 30.dp,
+                        topEnd = 30.dp
+                    )
+                )
+                .background(HangerCream)
+                .padding(
+                    top = 30.dp,
+                    bottom = 60.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            // ===== Corpo do formulário =====
+            Column(modifier = Modifier
+                .padding(horizontal = 24.dp, vertical = 24.dp)
+            ) {
                 Text(
-                    "Esqueci minha senha",
+                    "Entrar",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = HangerBlack
+                )
+                Text(
+                    "Bem-vindo de volta ✨",
+                    fontSize = 13.sp,
                     color = HangerGray,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 6.dp)
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+
+                AuthLabel("E-mail ou usuário")
+                AuthTextField(
+                    value = emailOrUsername,
+                    onValueChange = {
+                        emailOrUsername = it
+                        viewModel.clearError()
+                    },
+                    placeholder = "seu@email.com",
+                    keyboardType = KeyboardType.Email
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                AuthLabel("Senha")
+                AuthTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        viewModel.clearError()
+                    },
+                    placeholder = "••••••••",
+                    keyboardType = KeyboardType.Password,
+                    isPassword = true
+                )
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                    Text(
+                        "Esqueci minha senha",
+                        color = HangerGray,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                state.errorMessage?.let {
+                    AuthErrorBanner(it)
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                AuthPrimaryButton(
+                    text = "ENTRAR",
+                    isLoading = state.isLoading,
+                    onClick = { viewModel.login(emailOrUsername, password) }
+                )
+
+                AuthSwitchRow(
+                    question = "Ainda não tem conta?",
+                    actionText = "Criar conta",
+                    onClick = onNavigateToRegister
                 )
             }
-
-            Spacer(Modifier.height(16.dp))
-
-            state.errorMessage?.let {
-                AuthErrorBanner(it)
-                Spacer(Modifier.height(12.dp))
-            }
-
-            AuthPrimaryButton(
-                text = "ENTRAR",
-                isLoading = state.isLoading,
-                onClick = { viewModel.login(emailOrUsername, password) }
-            )
-
-            AuthDivider("ou continue com")
-
-            SocialButton(
-                label = "Continuar com Google",
-                badgeText = "G",
-                badgeColor = Color(0xFFEA4335),
-                onClick = { /* TODO: integração Google Sign-In */ }
-            )
-            Spacer(Modifier.height(8.dp))
-            SocialButton(
-                label = "Continuar com Facebook",
-                badgeText = "f",
-                badgeColor = Color(0xFF1877F2),
-                onClick = { /* TODO: integração Facebook Login */ }
-            )
-
-            Spacer(Modifier.height(18.dp))
-
-            AuthSwitchRow(
-                question = "Ainda não tem conta?",
-                actionText = "Criar conta",
-                onClick = onNavigateToRegister
-            )
         }
     }
 }
@@ -217,7 +230,7 @@ internal fun SocialButton(
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        colors = OutlinedButtonDefaults.colors(contentColor = HangerBlack),
+        // colors = color.HangerBlack,
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDDDDDD)),
         modifier = Modifier
             .fillMaxWidth()
