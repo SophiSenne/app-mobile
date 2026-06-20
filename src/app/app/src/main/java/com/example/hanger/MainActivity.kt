@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.hanger.ui.theme.HangerTheme
+import com.hanger.app.ui.auth.AuthViewModel
+import com.hanger.app.ui.auth.LoginScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,7 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HangerTheme {
-                FeedScreen()
+
             }
         }
     }
