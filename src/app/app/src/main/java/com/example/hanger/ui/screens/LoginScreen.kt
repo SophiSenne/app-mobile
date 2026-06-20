@@ -152,27 +152,25 @@ fun LoginScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                AuthLabel("E-mail ou usuário")
                 AuthTextField(
                     value = emailOrUsername,
                     onValueChange = {
                         emailOrUsername = it
                         viewModel.clearError()
                     },
-                    placeholder = "seu@email.com",
+                    label = "E-mail ou usuário",
                     keyboardType = KeyboardType.Email
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                AuthLabel("Senha")
                 AuthTextField(
                     value = password,
                     onValueChange = {
                         password = it
                         viewModel.clearError()
                     },
-                    placeholder = "••••••••",
+                    label = "Senha",
                     keyboardType = KeyboardType.Password,
                     isPassword = true
                 )
