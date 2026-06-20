@@ -10,6 +10,8 @@ object RetrofitClient {
 
     private const val BASE_URL = "http://localhost:5089"
 
+    private const val WEATHER_BASE_URL = "https://api.open-meteo.com/"
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
@@ -20,12 +22,31 @@ object RetrofitClient {
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    val authApiService: AuthApiService by lazy {
+    private val hangerRetrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(AuthApiService::class.java)
+    }
+
+    private val weatherRetrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(WEATHER_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val authApiService: AuthApiService by lazy {
+        hangerRetrofit.create(AuthApiService::class.java)
+    }
+
+    val apiService: ApiService by lazy {
+        hangerRetrofit.create(ApiService::class.java)
+    }
+
+    val weatherApiService: WeatherApiService by lazy {
+        weatherRetrofit.create(WeatherApiService::class.java)
     }
 }
