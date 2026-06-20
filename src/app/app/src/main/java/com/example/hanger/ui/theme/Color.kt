@@ -23,3 +23,17 @@ val HangerPlum = Color(0xFF5C3D52)
 val HangerGray = Color(0xFF888888)
 val HangerGrayLight = Color(0xFFBBBBBB)
 val HangerBorder = Color(0xFFDDDDDD)
+val HangerInk            = Color(0xFF111111)
+val HangerSurfaceAlt     = Color(0xFFF0EDE8)
+val HangerTextMuted      = Color(0xFFAAAAAA)
+val HangerTextSecondary  = Color(0xFF888888)
+
+val HangerPlaceholderGradients: List<Pair<Color, Color>> = listOf(
+    Color(0xFFE8E2DC) to Color(0xFFF0EBE4),
+    Color(0xFFDDE4E0) to Color(0xFFE8EEEB),
+    Color(0xFFF5EDE0) to Color(0xFFEDE4D5),
+    Color(0xFFE0DBD6) to Color(0xFFEDE8E3),
+    Color(0xFFE8DFD7) to Color(0xFFF2EBE3),
+    Color(0xFFDCE3E1) to Color(0xFFE6EDEB),
+    Color(0xFFEDE5DB) to Color(0xFFF5EDE2)
+)

@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.hanger.app.data.model.PostDto
-import com.hanger.app.ui.theme.HangerInk
-import com.hanger.app.ui.theme.HangerPink
-import com.hanger.app.ui.theme.HangerPlaceholderGradients
-import com.hanger.app.ui.theme.HangerTextMuted
-import com.hanger.app.ui.theme.HangerTextSecondary
+import com.example.hanger.ui.theme.HangerInk
+import com.example.hanger.ui.theme.HangerPink
+import com.example.hanger.ui.theme.HangerPlaceholderGradients
+import com.example.hanger.ui.theme.HangerTextMuted
+import com.example.hanger.ui.theme.HangerTextSecondary
 
 /**
  * Card de post no feed (equivalente ao .pin-card do prototipo).
@@ -120,7 +120,7 @@ fun PostCard(
 
 @Composable
 private fun PostImage(
-    imageUrl: String,
+    imageUrl: String?,
     aspectRatio: Float,
     placeholderIndex: Int,
     isSaved: Boolean,

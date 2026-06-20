@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://localhost:5089"
+    private const val BASE_URL = "https://unrevolving-lauren-nonpermeable.ngrok-free.dev/"
 
     private const val WEATHER_BASE_URL = "https://api.open-meteo.com/"
 

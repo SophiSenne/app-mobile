@@ -2,6 +2,13 @@ package com.hanger.app.data.model
 
 import com.google.gson.annotations.SerializedName
 
+/** Autor resumido de um post, construído client-side a partir de [PostDto]. */
+data class PostAuthor(
+    val username: String,
+    val displayName: String? = null,
+    val avatarUrl: String? = null
+)
+
 /**
  * Espelha o `PostDto` do contrato OpenAPI (Hanger API).
  *
@@ -14,8 +21,8 @@ data class PostDto(
     val id: String,
     val userId: String,
     val username: String?,
-    val imageUrl: String?,
-    val title: String?,
+    val imageUrl: String,
+    val title: String,
     val caption: String?,
     val weatherCondition: String?,
     val temperature: Double?,
@@ -42,6 +49,14 @@ data class PostDto(
             val ratios = floatArrayOf(0.74f, 0.95f, 1.05f, 0.85f, 1.15f)
             return ratios[seed % ratios.size]
         }
+
+    /** Autor resumido, construído client-side a partir dos campos disponíveis. */
+    val author: PostAuthor
+        get() = PostAuthor(
+            username = username ?: "usuario",
+            displayName = null,
+            avatarUrl = authorAvatarUrl
+        )
 }
 
 data class LikeDto(

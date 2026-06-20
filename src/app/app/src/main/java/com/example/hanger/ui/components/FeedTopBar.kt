@@ -26,12 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hanger.app.ui.theme.HangerGold
-import com.hanger.app.ui.theme.HangerInk
-import com.hanger.app.ui.theme.HangerPink
-import com.hanger.app.ui.theme.HangerPlum
-import com.hanger.app.ui.theme.HangerSurfaceAlt
-import com.hanger.app.ui.theme.HangerTextMuted
+import com.example.hanger.ui.theme.HangerGold
+import com.example.hanger.ui.theme.HangerInk
+import com.example.hanger.ui.theme.HangerPink
+import com.example.hanger.ui.theme.HangerPlum
+import com.example.hanger.ui.theme.HangerSurfaceAlt
+import com.example.hanger.ui.theme.HangerTextMuted
 
 @Composable
 fun FeedTopBar(
