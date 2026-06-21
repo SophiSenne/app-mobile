@@ -115,7 +115,7 @@ fun FeedScreen(
                 userInitials = userInitials,
                 onTemperatureClick = { showWeatherSheet = true },
                 onProfileClick = onNavigateToProfile,
-                onSearchClick = {}
+                onSearchClick = onNavigateToExplore
             )
 
             HorizontalDivider(color = Color(0x1A000000), thickness = 0.5.dp)

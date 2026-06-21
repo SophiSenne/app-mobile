@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.hanger.ui.theme.HangerTheme
+import com.example.hanger.ui.screens.ExploreScreen
 import com.hanger.app.data.model.User
 import com.hanger.app.ui.screens.FeedScreen
 import com.hanger.app.ui.screens.LoginScreen
@@ -21,6 +22,7 @@ private sealed class AppScreen {
     object Register : AppScreen()
     object Feed : AppScreen()
     object Profile : AppScreen()
+    data class Explore(val initialQuery: String = "") : AppScreen()
     data class PostDetail(val postId: String) : AppScreen()
 }
 
@@ -57,6 +59,7 @@ class MainActivity : ComponentActivity() {
                             ?: "ME",
                         userId = loggedInUser?.id ?: "",
                         onNavigateToProfile = { screen = AppScreen.Profile },
+                        onNavigateToExplore = { screen = AppScreen.Explore() },
                         onNavigateToPost = { postId -> screen = AppScreen.PostDetail(postId) }
                     )
 
@@ -70,6 +73,15 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+
+                    is AppScreen.Explore -> ExploreScreen(
+                        userId = loggedInUser?.id ?: "",
+                        userInitials = loggedInUser?.username?.take(2)?.uppercase() ?: "ME",
+                        initialQuery = s.initialQuery,
+                        onNavigateToFeed = { screen = AppScreen.Feed },
+                        onNavigateToProfile = { screen = AppScreen.Profile },
+                        onNavigateToPost = { postId -> screen = AppScreen.PostDetail(postId) }
+                    )
 
                     is AppScreen.PostDetail -> PostDetailScreen(
                         postId = s.postId,

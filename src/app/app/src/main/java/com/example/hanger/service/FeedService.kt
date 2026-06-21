@@ -122,4 +122,20 @@ interface ApiService {
     suspend fun uploadAvatar(
         @Part file: MultipartBody.Part
     ): Response<AvatarUploadResponse>
+
+    // ===== Search =====
+
+    @GET("posts")
+    suspend fun searchPosts(
+        @Query("search") query: String,
+        @Query("limit") limit: Int = 30,
+        @Query("offset") offset: Int = 0
+    ): Response<List<PostDto>>
+
+    @GET("users")
+    suspend fun searchUsers(
+        @Query("search") query: String,
+        @Query("limit") limit: Int = 20,
+        @Query("offset") offset: Int = 0
+    ): Response<List<User>>
 }
