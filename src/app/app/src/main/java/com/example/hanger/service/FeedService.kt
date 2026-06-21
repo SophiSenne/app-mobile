@@ -62,7 +62,7 @@ interface ApiService {
     // ===== Upload =====
 
     @Multipart
-    @POST("users/avatar")
+    @POST("images/avatar")
     suspend fun uploadAvatar(
         @Part file: MultipartBody.Part
     ): Response<AvatarUploadResponse>

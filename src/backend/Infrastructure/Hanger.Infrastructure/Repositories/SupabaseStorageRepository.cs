@@ -43,10 +43,11 @@ public sealed class SupabaseStorageRepository : IStorageRepository
         Stream fileStream,
         string fileName,
         string contentType,
+        string subfolder,
         CancellationToken cancellationToken = default)
     {
-        // Gera um nome único para evitar colisões: posts/<guid>_<nome-original>
-        var uniquePath = $"posts/{Guid.NewGuid()}_{SanitizeFileName(fileName)}";
+        // Gera um nome único para evitar colisões: <subfolder>/<guid>_<nome-original>
+        var uniquePath = $"{subfolder}/{Guid.NewGuid()}_{SanitizeFileName(fileName)}";
 
         using var content = new StreamContent(fileStream);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);

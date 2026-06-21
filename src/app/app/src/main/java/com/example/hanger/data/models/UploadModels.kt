@@ -1,5 +1,7 @@
 package com.hanger.app.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class AvatarUploadResponse(
-    val avatarUrl: String
+    @SerializedName("avatarUrl") val avatarUrl: String
 )

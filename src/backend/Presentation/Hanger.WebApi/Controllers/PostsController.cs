@@ -66,6 +66,7 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
                 stream,
                 form.Image.FileName,
                 form.Image.ContentType,
+                "posts",
                 cancellationToken);
         }
 
@@ -113,6 +114,7 @@ public class PostsController(IPostsService service, IStorageRepository storageRe
                 stream,
                 form.Image.FileName,
                 form.Image.ContentType,
+                "posts",
                 cancellationToken);
         }
 
