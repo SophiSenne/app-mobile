@@ -3,7 +3,10 @@ using Hanger.Application.DTOs;
 
 namespace Hanger.Application.Services;
 
-public sealed class LikesService(ILikesRepository repository, IPostsRepository postsRepository) : ILikesService
+public sealed class LikesService(
+    ILikesRepository repository,
+    IPostsRepository postsRepository,
+    INotificationsService notificationsService) : ILikesService
 {
     public Task<IReadOnlyList<LikeDto>> GetByPostIdAsync(
         Guid postId, int limit, int offset, CancellationToken cancellationToken) =>
@@ -21,11 +24,23 @@ public sealed class LikesService(ILikesRepository repository, IPostsRepository p
 
     public async Task<LikeDto> LikeAsync(Guid userId, Guid postId, CancellationToken cancellationToken)
     {
-        var postExists = await postsRepository.ExistsAsync(postId, cancellationToken);
-        if (!postExists)
-            throw new KeyNotFoundException("Post não encontrado.");
+        var post = await postsRepository.GetByIdAsync(postId, cancellationToken)
+            ?? throw new KeyNotFoundException("Post não encontrado.");
 
-        return await repository.LikeAsync(userId, postId, cancellationToken);
+        var like = await repository.LikeAsync(userId, postId, cancellationToken);
+
+        // Não notifica o próprio autor
+        if (post.UserId != userId)
+        {
+            await notificationsService.CreateAsync(
+                recipientId: post.UserId,
+                senderId: userId,
+                type: "like",
+                postId: postId,
+                cancellationToken);
+        }
+
+        return like;
     }
 
     public Task<bool> UnlikeAsync(Guid userId, Guid postId, CancellationToken cancellationToken) =>

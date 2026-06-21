@@ -78,6 +78,7 @@ fun ExploreScreen(
     userId: String = "",
     userInitials: String = "ME",
     initialQuery: String = "",
+    hasNotifications: Boolean = false,
     onNavigateToFeed: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
@@ -109,6 +110,7 @@ fun ExploreScreen(
         bottomBar = {
             FeedBottomNav(
                 currentRoute = "explore",
+                hasNotifications = hasNotifications,
                 onHomeClick = onNavigateToFeed,
                 onExploreClick = {},
                 onCameraClick = onNavigateToCamera,

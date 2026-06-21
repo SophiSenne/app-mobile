@@ -3,7 +3,10 @@ using Hanger.Application.DTOs;
 
 namespace Hanger.Application.Services;
 
-public sealed class FollowsService(IFollowsRepository repository, IUsersRepository usersRepository) : IFollowsService
+public sealed class FollowsService(
+    IFollowsRepository repository,
+    IUsersRepository usersRepository,
+    INotificationsService notificationsService) : IFollowsService
 {
     public Task<IReadOnlyList<FollowDto>> GetFollowingAsync(
         Guid userId, int limit, int offset, CancellationToken cancellationToken) =>
@@ -28,7 +31,16 @@ public sealed class FollowsService(IFollowsRepository repository, IUsersReposito
         if (!targetExists)
             throw new KeyNotFoundException("Usuário a ser seguido não encontrado.");
 
-        return await repository.FollowAsync(followerId, followingId, cancellationToken);
+        var follow = await repository.FollowAsync(followerId, followingId, cancellationToken);
+
+        await notificationsService.CreateAsync(
+            recipientId: followingId,
+            senderId: followerId,
+            type: "follow",
+            postId: null,
+            cancellationToken);
+
+        return follow;
     }
 
     public Task<bool> UnfollowAsync(Guid followerId, Guid followingId, CancellationToken cancellationToken) =>

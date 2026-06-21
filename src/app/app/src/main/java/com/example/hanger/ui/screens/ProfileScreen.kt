@@ -82,6 +82,7 @@ private enum class ProfileTab(val icon: ImageVector, val label: String) {
 @Composable
 fun ProfileScreen(
     user: User,
+    hasNotifications: Boolean = false,
     onNavigateBack: () -> Unit = {},
     onNavigateToFeed: () -> Unit = {},
     onNavigateToExplore: () -> Unit = {},
@@ -107,6 +108,7 @@ fun ProfileScreen(
         bottomBar = {
             FeedBottomNav(
                 currentRoute = "profile",
+                hasNotifications = hasNotifications,
                 onHomeClick = onNavigateToFeed,
                 onExploreClick = onNavigateToExplore,
                 onCameraClick = onNavigateToCamera,

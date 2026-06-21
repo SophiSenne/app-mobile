@@ -3,7 +3,10 @@ using Hanger.Application.DTOs;
 
 namespace Hanger.Application.Services;
 
-public sealed class CommentsService(ICommentsRepository repository, IPostsRepository postsRepository) : ICommentsService
+public sealed class CommentsService(
+    ICommentsRepository repository,
+    IPostsRepository postsRepository,
+    INotificationsService notificationsService) : ICommentsService
 {
     public Task<IReadOnlyList<CommentDto>> GetByPostIdAsync(
         Guid postId, int limit, int offset, CancellationToken cancellationToken) =>
@@ -21,11 +24,22 @@ public sealed class CommentsService(ICommentsRepository repository, IPostsReposi
         if (string.IsNullOrWhiteSpace(request.Content))
             throw new InvalidOperationException("O conteúdo do comentário não pode ser vazio.");
 
-        var postExists = await postsRepository.ExistsAsync(postId, cancellationToken);
-        if (!postExists)
-            throw new KeyNotFoundException("Post não encontrado.");
+        var post = await postsRepository.GetByIdAsync(postId, cancellationToken)
+            ?? throw new KeyNotFoundException("Post não encontrado.");
 
-        return await repository.CreateAsync(postId, userId, request, cancellationToken);
+        var comment = await repository.CreateAsync(postId, userId, request, cancellationToken);
+
+        if (post.UserId != userId)
+        {
+            await notificationsService.CreateAsync(
+                recipientId: post.UserId,
+                senderId: userId,
+                type: "comment",
+                postId: postId,
+                cancellationToken);
+        }
+
+        return comment;
     }
 
     public async Task<CommentDto?> UpdateAsync(

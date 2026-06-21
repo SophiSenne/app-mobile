@@ -100,4 +100,27 @@ public sealed class NotificationsRepository(NpgsqlDataSource dataSource) : INoti
         var affected = await connection.ExecuteAsync(sql, new { NotificationId = notificationId, RecipientId = recipientId });
         return affected > 0;
     }
+
+    public async Task<NotificationDto> CreateAsync(
+        Guid recipientId, Guid senderId, string type, Guid? postId, CancellationToken cancellationToken)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
+
+        const string insertSql = """
+            INSERT INTO notifications (recipient_id, sender_id, type, post_id)
+            VALUES (@RecipientId, @SenderId, @Type::notification_type, @PostId)
+            RETURNING id, created_at
+            """;
+
+        var row = await connection.QuerySingleAsync<(Guid Id, DateTime CreatedAt)>(
+            insertSql,
+            new { RecipientId = recipientId, SenderId = senderId, Type = type, PostId = postId });
+
+        var selectSql = $"""
+            {SelectBase}
+            WHERE n.id = @Id
+            """;
+
+        return await connection.QuerySingleAsync<NotificationDto>(selectSql, new { row.Id });
+    }
 }

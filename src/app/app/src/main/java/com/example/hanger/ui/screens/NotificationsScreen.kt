@@ -73,6 +73,8 @@ import java.util.Locale
 @Composable
 fun NotificationsScreen(
     userId: String,
+    hasNotifications: Boolean = false,
+    onAllRead: () -> Unit = {},
     onNavigateToFeed: () -> Unit = {},
     onNavigateToExplore: () -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
@@ -94,7 +96,7 @@ fun NotificationsScreen(
         bottomBar = {
             FeedBottomNav(
                 currentRoute = "notifications",
-                hasNotifications = state.unreadCount > 0,
+                hasNotifications = hasNotifications,
                 onHomeClick = onNavigateToFeed,
                 onExploreClick = onNavigateToExplore,
                 onCameraClick = onNavigateToCamera,
@@ -123,7 +125,7 @@ fun NotificationsScreen(
                     modifier = Modifier.weight(1f)
                 )
                 if (state.unreadCount > 0) {
-                    IconButton(onClick = vm::markAllRead) {
+                    IconButton(onClick = { vm.markAllRead(); onAllRead() }) {
                         Icon(
                             imageVector = Icons.Filled.DoneAll,
                             contentDescription = "Marcar todas como lidas",

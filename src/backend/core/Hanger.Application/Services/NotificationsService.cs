@@ -24,4 +24,8 @@ public sealed class NotificationsService(INotificationsRepository repository) : 
 
     public Task<bool> DeleteAsync(Guid notificationId, Guid recipientId, CancellationToken cancellationToken) =>
         repository.DeleteAsync(notificationId, recipientId, cancellationToken);
+
+    public Task<NotificationDto> CreateAsync(
+        Guid recipientId, Guid senderId, string type, Guid? postId, CancellationToken cancellationToken) =>
+        repository.CreateAsync(recipientId, senderId, type, postId, cancellationToken);
 }

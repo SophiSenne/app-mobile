@@ -59,6 +59,7 @@ import com.example.hanger.ui.theme.HangerTextMuted
 fun FeedScreen(
     userInitials: String = "ME",
     userId: String = "",
+    hasNotifications: Boolean = false,
     onNavigateToProfile: () -> Unit = {},
     onNavigateToExplore: () -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
@@ -97,6 +98,7 @@ fun FeedScreen(
         bottomBar = {
             FeedBottomNav(
                 currentRoute = "feed",
+                hasNotifications = hasNotifications,
                 onHomeClick = {},
                 onExploreClick = onNavigateToExplore,
                 onCameraClick = onNavigateToCamera,
