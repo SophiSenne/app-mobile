@@ -1,5 +1,6 @@
 package com.hanger.app.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -49,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -150,12 +153,31 @@ fun PostDetailScreen(
                     Text("Post não encontrado", color = HangerTextMuted)
                 }
             } else {
+                val context = LocalContext.current
                 PostDetailContent(
                     post = post,
                     state = state,
                     innerPadding = innerPadding,
                     onToggleLike = viewModel::toggleLike,
-                    onToggleSave = viewModel::toggleSave
+                    onToggleSave = viewModel::toggleSave,
+                    onShareWhatsApp = {
+                        val text = buildString {
+                            append("*${post.title}*")
+                            post.caption?.takeIf { it.isNotBlank() }?.let { append("\n$it") }
+                            append("\n\n${post.imageUrl}")
+                        }
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, text)
+                            setPackage("com.whatsapp")
+                        }
+                        val chooser = Intent.createChooser(intent, "Compartilhar via WhatsApp")
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(intent)
+                        } else {
+                            context.startActivity(chooser)
+                        }
+                    }
                 )
             }
         }
@@ -191,7 +213,8 @@ private fun PostDetailContent(
     state: PostDetailUiState,
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onToggleLike: () -> Unit,
-    onToggleSave: () -> Unit
+    onToggleSave: () -> Unit,
+    onShareWhatsApp: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -208,7 +231,7 @@ private fun PostDetailContent(
         }
 
         item {
-            PostInfo(post = post, onToggleLike = onToggleLike, onToggleSave = onToggleSave)
+            PostInfo(post = post, onToggleLike = onToggleLike, onToggleSave = onToggleSave, onShareWhatsApp = onShareWhatsApp)
         }
 
         item {
@@ -260,7 +283,8 @@ private fun PostDetailContent(
 private fun PostInfo(
     post: PostDto,
     onToggleLike: () -> Unit,
-    onToggleSave: () -> Unit
+    onToggleSave: () -> Unit,
+    onShareWhatsApp: () -> Unit
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -322,21 +346,46 @@ private fun PostInfo(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = if (post.isLikedByMe) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                contentDescription = "Curtir",
-                tint = if (post.isLikedByMe) HangerPink else HangerTextMuted,
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable(onClick = onToggleLike)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "${post.likesCount} curtidas",
-                fontSize = 13.sp,
-                color = HangerTextMuted
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (post.isLikedByMe) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = "Curtir",
+                    tint = if (post.isLikedByMe) HangerPink else HangerTextMuted,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable(onClick = onToggleLike)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${post.likesCount} curtidas",
+                    fontSize = 13.sp,
+                    color = HangerTextMuted
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable(onClick = onShareWhatsApp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Share,
+                    contentDescription = "Compartilhar no WhatsApp",
+                    tint = Color(0xFF25D366),
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "WhatsApp",
+                    fontSize = 12.sp,
+                    color = Color(0xFF25D366),
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
 
         val metaItems = listOfNotNull(

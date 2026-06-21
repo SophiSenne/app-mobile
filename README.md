@@ -32,14 +32,13 @@ Pesquisar por topico
 [x] Definir rotas do back
 [x] Codar back
 [x] Card de imagem
-[ ] Tela de perfil
-[ ] Feed com imagens
-[ ] Barra de navegação
-[ ] Pesquisa
+[x] Tela de perfil
+[x] Feed com imagens
+[x] Barra de navegação
+[x] Pesquisa
 [ ] Sistema de notificação
-[ ] Integração com API de previsão do tempo
-[ ] Integração com câmera do celular
-[ ] Extra: IA para gerar looks
+[x] Integração com API de previsão do tempo
+[x] Integração com câmera do celular
 [ ] testes unitarios no back
 [ ] acessibilidade no app
 
