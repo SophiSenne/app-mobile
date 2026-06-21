@@ -2,8 +2,12 @@ package com.hanger.app.data.network
 
 import com.hanger.app.data.model.AvatarUploadResponse
 import com.hanger.app.data.model.CategoryDto
+import com.hanger.app.data.model.HasLikedResponse
+import com.hanger.app.data.model.HasSavedResponse
+import com.hanger.app.data.model.LikeCountResponse
 import com.hanger.app.data.model.LikeDto
 import com.hanger.app.data.model.PostDto
+import com.hanger.app.data.model.SavedPostDto
 import com.hanger.app.data.model.User
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -52,12 +56,40 @@ interface ApiService {
     ): Response<Unit>
 
     @GET("posts/{postId}/likes/count")
-    suspend fun getLikesCount(@Path("postId") postId: String): Response<Int>
+    suspend fun getLikesCount(@Path("postId") postId: String): Response<LikeCountResponse>
+
+    @GET("posts/{postId}/likes/check")
+    suspend fun hasLikedPost(
+        @Path("postId") postId: String,
+        @Query("userId") userId: String
+    ): Response<HasLikedResponse>
 
     // ===== Users (para resolver avatar do autor de cada post) =====
 
     @GET("users/{userId}")
     suspend fun getUser(@Path("userId") userId: String): Response<User>
+
+    // ===== Saved Posts =====
+
+    @POST("users/{userId}/saved-posts/{postId}")
+    suspend fun savePost(
+        @Path("userId") userId: String,
+        @Path("postId") postId: String,
+        @Header("X-User-Id") requestingUserId: String
+    ): Response<SavedPostDto>
+
+    @DELETE("users/{userId}/saved-posts/{postId}")
+    suspend fun unsavePost(
+        @Path("userId") userId: String,
+        @Path("postId") postId: String,
+        @Header("X-User-Id") requestingUserId: String
+    ): Response<Unit>
+
+    @GET("users/{userId}/saved-posts/{postId}")
+    suspend fun hasSavedPost(
+        @Path("userId") userId: String,
+        @Path("postId") postId: String
+    ): Response<HasSavedResponse>
 
     // ===== Upload =====
 

@@ -30,6 +30,18 @@ public class LikesController(ILikesService service) : ApiControllerBase
         return Ok(new { postId, count });
     }
 
+    /// <summary>Verifica se um usuário específico curtiu o post.</summary>
+    [HttpGet("check")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Check(
+        Guid postId,
+        [FromQuery] Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var liked = await service.HasLikedAsync(userId, postId, cancellationToken);
+        return Ok(new { postId, userId, liked });
+    }
+
     /// <summary>Curtir um post.</summary>
     [HttpPost]
     [ProducesResponseType<LikeDto>(StatusCodes.Status201Created)]

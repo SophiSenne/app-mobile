@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                             ?.take(2)
                             ?.uppercase()
                             ?: "ME",
+                        userId = loggedInUser?.id ?: "",
                         onNavigateToProfile = { screen = AppScreen.PROFILE }
                     )
 

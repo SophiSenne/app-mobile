@@ -2,6 +2,7 @@ package com.hanger.app.ui.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hanger.app.data.repository.ActionResult
 import com.hanger.app.data.repository.PostsRepository
 import com.hanger.app.data.repository.PostsResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 private const val PAGE_SIZE = 20
 
 class FeedViewModel(
-    private val repository: PostsRepository
+    private val repository: PostsRepository,
+    private val currentUserId: String = ""
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FeedUiState())
@@ -47,9 +49,6 @@ class FeedViewModel(
     fun onFilterSelected(filter: FeedFilter) {
         if (filter == _uiState.value.selectedFilter) return
         _uiState.update { it.copy(selectedFilter = filter) }
-        // Filtro aplicado client-side por enquanto, pois o contrato atual de
-        // GET /posts não expõe parâmetro de categoria. Quando o backend
-        // suportar (ex. ?category=), trocar para recarregar via fetch().
     }
 
     fun dismissError() {
@@ -58,7 +57,7 @@ class FeedViewModel(
 
     private fun fetch(offset: Int, append: Boolean) {
         viewModelScope.launch {
-            val result = repository.getPosts(limit = PAGE_SIZE, offset = offset)
+            val result = repository.getPosts(limit = PAGE_SIZE, offset = offset, currentUserId = currentUserId)
             when (result) {
                 is PostsResult.Success -> {
                     val newPosts = result.posts
@@ -88,33 +87,81 @@ class FeedViewModel(
         }
     }
 
-    /** Atualiza otimisticamente o estado de curtida de um post (UI apenas). */
+    /** Atualiza otimisticamente o estado de curtida e confirma via API. */
     fun toggleLike(postId: String) {
+        if (currentUserId.isBlank()) return
+
+        val post = _uiState.value.posts.find { it.id == postId } ?: return
+        val nowLiked = !post.isLikedByMe
+
         _uiState.update { state ->
             state.copy(
-                posts = state.posts.map { post ->
-                    if (post.id == postId) {
-                        val liked = !post.isLikedByMe
-                        post.copy(
-                            isLikedByMe = liked,
-                            likesCount = post.likesCount + if (liked) 1 else -1
-                        )
-                    } else post
+                posts = state.posts.map {
+                    if (it.id == postId) it.copy(
+                        isLikedByMe = nowLiked,
+                        likesCount = it.likesCount + if (nowLiked) 1 else -1
+                    ) else it
                 }
             )
         }
-        // TODO: chamar endpoint de like (ex. POST /posts/{id}/likes) quando publicado no contrato.
+
+        viewModelScope.launch {
+            val result = if (nowLiked) {
+                repository.like(postId, currentUserId)
+            } else {
+                repository.unlike(postId, currentUserId)
+            }
+
+            if (result is ActionResult.Error) {
+                _uiState.update { state ->
+                    state.copy(
+                        posts = state.posts.map {
+                            if (it.id == postId) it.copy(
+                                isLikedByMe = !nowLiked,
+                                likesCount = it.likesCount + if (nowLiked) -1 else 1
+                            ) else it
+                        },
+                        errorMessage = result.message
+                    )
+                }
+            }
+        }
     }
 
-    /** Atualiza otimisticamente o estado de salvo de um post (UI apenas). */
+    /** Atualiza otimisticamente o estado de salvo e confirma via API. */
     fun toggleSave(postId: String) {
+        if (currentUserId.isBlank()) return
+
+        val post = _uiState.value.posts.find { it.id == postId } ?: return
+        val nowSaved = !post.isSavedByMe
+
+        // Atualização otimista imediata
         _uiState.update { state ->
             state.copy(
-                posts = state.posts.map { post ->
-                    if (post.id == postId) post.copy(isSavedByMe = !post.isSavedByMe) else post
+                posts = state.posts.map {
+                    if (it.id == postId) it.copy(isSavedByMe = nowSaved) else it
                 }
             )
         }
-        // TODO: chamar endpoint de save quando publicado no contrato.
+
+        viewModelScope.launch {
+            val result = if (nowSaved) {
+                repository.savePost(postId, currentUserId)
+            } else {
+                repository.unsavePost(postId, currentUserId)
+            }
+
+            if (result is ActionResult.Error) {
+                // Reverte em caso de falha
+                _uiState.update { state ->
+                    state.copy(
+                        posts = state.posts.map {
+                            if (it.id == postId) it.copy(isSavedByMe = !nowSaved) else it
+                        },
+                        errorMessage = result.message
+                    )
+                }
+            }
+        }
     }
 }

@@ -65,3 +65,27 @@ data class LikeDto(
     val postId: String,
     val createdAt: String
 )
+
+data class SavedPostDto(
+    val userId: String,
+    val username: String?,
+    val postId: String,
+    val createdAt: String
+)
+
+data class HasSavedResponse(
+    val userId: String,
+    val postId: String,
+    val saved: Boolean
+)
+
+data class LikeCountResponse(
+    val postId: String,
+    val count: Int
+)
+
+data class HasLikedResponse(
+    val postId: String,
+    val userId: String,
+    val liked: Boolean
+)

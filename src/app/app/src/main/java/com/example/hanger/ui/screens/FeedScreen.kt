@@ -58,16 +58,17 @@ import com.example.hanger.ui.theme.HangerTextMuted
 @Composable
 fun FeedScreen(
     userInitials: String = "ME",
+    userId: String = "",
     onNavigateToProfile: () -> Unit = {},
     onNavigateToExplore: () -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {}
 ) {
-    val feedFactory = remember {
+    val feedFactory = remember(userId) {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                FeedViewModel(PostsRepository()) as T
+                FeedViewModel(PostsRepository(), currentUserId = userId) as T
         }
     }
     val weatherFactory = remember {

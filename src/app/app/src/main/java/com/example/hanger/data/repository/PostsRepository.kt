@@ -1,6 +1,7 @@
 package com.hanger.app.data.repository
 
 import com.hanger.app.data.model.PostDto
+import com.hanger.app.data.model.SavedPostDto
 import com.hanger.app.data.network.ApiService
 import com.hanger.app.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
@@ -27,14 +28,16 @@ class PostsRepository(
      * da mesma página. */
     private val avatarCache = mutableMapOf<String, String?>()
 
-    suspend fun getPosts(limit: Int, offset: Int): PostsResult = withContext(Dispatchers.IO) {
+    suspend fun getPosts(limit: Int, offset: Int, currentUserId: String = ""): PostsResult = withContext(Dispatchers.IO) {
         try {
             val response = api.getPosts(limit = limit, offset = offset)
             if (response.isSuccessful) {
                 val posts = response.body().orEmpty()
                 val withAuthors = hydrateAuthors(posts)
                 val withLikes = hydrateLikesCount(withAuthors)
-                PostsResult.Success(withLikes)
+                val withLikedStatus = if (currentUserId.isNotBlank()) hydrateLikedStatus(withLikes, currentUserId) else withLikes
+                val withSaved = if (currentUserId.isNotBlank()) hydrateSavedStatus(withLikedStatus, currentUserId) else withLikedStatus
+                PostsResult.Success(withSaved)
             } else {
                 PostsResult.Error("Não foi possível carregar o feed (${response.code()})")
             }
@@ -43,15 +46,43 @@ class PostsRepository(
         }
     }
 
-    /** Busca a contagem de curtidas de cada post em paralelo. O contrato não
-     * expõe `likesCount` diretamente em `PostDto`, então complementamos com
-     * `GET /posts/{postId}/likes/count`. */
+    /** Verifica em paralelo quais posts o usuário logado já curtiu. */
+    private suspend fun hydrateLikedStatus(posts: List<PostDto>, userId: String): List<PostDto> = coroutineScope {
+        posts.map { post ->
+            async {
+                val liked = try {
+                    val response = api.hasLikedPost(post.id, userId)
+                    if (response.isSuccessful) response.body()?.liked ?: false else false
+                } catch (e: Exception) {
+                    false
+                }
+                post.copy(isLikedByMe = liked)
+            }
+        }.awaitAll()
+    }
+
+    /** Verifica em paralelo quais posts já foram salvos pelo usuário logado. */
+    private suspend fun hydrateSavedStatus(posts: List<PostDto>, userId: String): List<PostDto> = coroutineScope {
+        posts.map { post ->
+            async {
+                val saved = try {
+                    val response = api.hasSavedPost(userId, post.id)
+                    if (response.isSuccessful) response.body()?.saved ?: false else false
+                } catch (e: Exception) {
+                    false
+                }
+                post.copy(isSavedByMe = saved)
+            }
+        }.awaitAll()
+    }
+
+    /** Busca a contagem de curtidas de cada post em paralelo. */
     private suspend fun hydrateLikesCount(posts: List<PostDto>): List<PostDto> = coroutineScope {
         posts.map { post ->
             async {
                 val count = try {
                     val response = api.getLikesCount(post.id)
-                    if (response.isSuccessful) response.body() ?: 0 else 0
+                    if (response.isSuccessful) response.body()?.count ?: 0 else 0
                 } catch (e: Exception) {
                     0
                 }
@@ -104,6 +135,35 @@ class PostsRepository(
             else ActionResult.Error("Não foi possível remover a curtida (${response.code()})")
         } catch (e: Exception) {
             ActionResult.Error(e.message ?: "Falha de conexão.")
+        }
+    }
+
+    suspend fun savePost(postId: String, userId: String): ActionResult = withContext(Dispatchers.IO) {
+        try {
+            val response = api.savePost(userId, postId, userId)
+            if (response.isSuccessful) ActionResult.Success
+            else ActionResult.Error("Não foi possível salvar o post (${response.code()})")
+        } catch (e: Exception) {
+            ActionResult.Error(e.message ?: "Falha de conexão.")
+        }
+    }
+
+    suspend fun unsavePost(postId: String, userId: String): ActionResult = withContext(Dispatchers.IO) {
+        try {
+            val response = api.unsavePost(userId, postId, userId)
+            if (response.isSuccessful) ActionResult.Success
+            else ActionResult.Error("Não foi possível remover o post salvo (${response.code()})")
+        } catch (e: Exception) {
+            ActionResult.Error(e.message ?: "Falha de conexão.")
+        }
+    }
+
+    suspend fun hasSavedPost(postId: String, userId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val response = api.hasSavedPost(userId, postId)
+            if (response.isSuccessful) response.body()?.saved ?: false else false
+        } catch (e: Exception) {
+            false
         }
     }
 }
