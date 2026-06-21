@@ -1,5 +1,7 @@
 package com.hanger.app.data.repository
 
+import android.content.Context
+import android.net.Uri
 import com.hanger.app.data.model.CommentDto
 import com.hanger.app.data.model.CreateCommentRequest
 import com.hanger.app.data.model.PostDto
@@ -11,6 +13,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 sealed class PostsResult {
     data class Success(val posts: List<PostDto>) : PostsResult()
@@ -204,6 +210,60 @@ class PostsRepository(
             val response = api.createComment(postId, userId, CreateCommentRequest(content))
             if (response.isSuccessful) ActionResult.Success
             else ActionResult.Error("Não foi possível comentar (${response.code()})")
+        } catch (e: Exception) {
+            ActionResult.Error(e.message ?: "Falha de conexão.")
+        }
+    }
+
+    suspend fun createPost(
+        userId: String,
+        imageUri: Uri,
+        context: Context,
+        title: String,
+        caption: String? = null,
+        categoryId: Int? = null,
+        typeId: Int? = null,
+        weatherCondition: String? = null,
+        temperature: Double? = null,
+        city: String? = null
+    ): ActionResult = withContext(Dispatchers.IO) {
+        try {
+            val resolver = context.contentResolver
+            val mimeType = resolver.getType(imageUri) ?: "image/jpeg"
+            val bytes = resolver.openInputStream(imageUri)?.use { it.readBytes() }
+                ?: return@withContext ActionResult.Error("Não foi possível ler a imagem")
+            val extension = when (mimeType) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                else -> "jpg"
+            }
+            val imagePart = MultipartBody.Part.createFormData(
+                name = "image",
+                filename = "post.$extension",
+                body = bytes.toRequestBody(mimeType.toMediaType())
+            )
+            val plain = "text/plain".toMediaTypeOrNull()
+            val titlePart = title.toRequestBody(plain)
+            val captionPart = caption?.toRequestBody(plain)
+            val categoryPart = categoryId?.toString()?.toRequestBody(plain)
+            val typePart = typeId?.toString()?.toRequestBody(plain)
+            val conditionPart = weatherCondition?.toRequestBody(plain)
+            val tempPart = temperature?.toString()?.toRequestBody(plain)
+            val cityPart = city?.toRequestBody(plain)
+
+            val response = api.createPost(
+                userId = userId,
+                image = imagePart,
+                title = titlePart,
+                caption = captionPart,
+                categoryId = categoryPart,
+                typeId = typePart,
+                weatherCondition = conditionPart,
+                temperature = tempPart,
+                city = cityPart
+            )
+            if (response.isSuccessful) ActionResult.Success
+            else ActionResult.Error("Não foi possível criar o post (${response.code()})")
         } catch (e: Exception) {
             ActionResult.Error(e.message ?: "Falha de conexão.")
         }

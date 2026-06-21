@@ -9,10 +9,13 @@ import com.hanger.app.data.model.HasLikedResponse
 import com.hanger.app.data.model.HasSavedResponse
 import com.hanger.app.data.model.LikeCountResponse
 import com.hanger.app.data.model.LikeDto
+import com.hanger.app.data.model.NotificationCountResponse
+import com.hanger.app.data.model.NotificationDto
 import com.hanger.app.data.model.PostDto
 import com.hanger.app.data.model.SavedPostDto
 import com.hanger.app.data.model.User
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -122,6 +125,47 @@ interface ApiService {
     suspend fun uploadAvatar(
         @Part file: MultipartBody.Part
     ): Response<AvatarUploadResponse>
+
+    // ===== Create Post =====
+
+    @Multipart
+    @POST("posts")
+    suspend fun createPost(
+        @Header("X-User-Id") userId: String,
+        @Part image: MultipartBody.Part,
+        @Part("title") title: RequestBody,
+        @Part("caption") caption: RequestBody?,
+        @Part("categoryId") categoryId: RequestBody?,
+        @Part("typeId") typeId: RequestBody?,
+        @Part("weatherCondition") weatherCondition: RequestBody?,
+        @Part("temperature") temperature: RequestBody?,
+        @Part("city") city: RequestBody?
+    ): Response<PostDto>
+
+    // ===== Notifications =====
+
+    @GET("users/{userId}/notifications")
+    suspend fun getNotifications(
+        @Path("userId") userId: String,
+        @Query("limit") limit: Int = 30,
+        @Query("offset") offset: Int = 0
+    ): Response<List<NotificationDto>>
+
+    @GET("users/{userId}/notifications/unread-count")
+    suspend fun getUnreadNotificationsCount(
+        @Path("userId") userId: String
+    ): Response<NotificationCountResponse>
+
+    @PUT("users/{userId}/notifications/{notificationId}/read")
+    suspend fun markNotificationRead(
+        @Path("userId") userId: String,
+        @Path("notificationId") notificationId: String
+    ): Response<Unit>
+
+    @PUT("users/{userId}/notifications/read-all")
+    suspend fun markAllNotificationsRead(
+        @Path("userId") userId: String
+    ): Response<Unit>
 
     // ===== Search =====
 

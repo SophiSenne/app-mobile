@@ -10,7 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.hanger.ui.theme.HangerTheme
 import com.example.hanger.ui.screens.ExploreScreen
+import com.example.hanger.ui.screens.NotificationsScreen
 import com.hanger.app.data.model.User
+import com.hanger.app.ui.screens.CreatePostScreen
 import com.hanger.app.ui.screens.FeedScreen
 import com.hanger.app.ui.screens.LoginScreen
 import com.hanger.app.ui.screens.PostDetailScreen
@@ -22,6 +24,8 @@ private sealed class AppScreen {
     object Register : AppScreen()
     object Feed : AppScreen()
     object Profile : AppScreen()
+    object CreatePost : AppScreen()
+    object Notifications : AppScreen()
     data class Explore(val initialQuery: String = "") : AppScreen()
     data class PostDetail(val postId: String) : AppScreen()
 }
@@ -60,7 +64,15 @@ class MainActivity : ComponentActivity() {
                         userId = loggedInUser?.id ?: "",
                         onNavigateToProfile = { screen = AppScreen.Profile },
                         onNavigateToExplore = { screen = AppScreen.Explore() },
+                        onNavigateToCamera = { screen = AppScreen.CreatePost },
+                        onNavigateToNotifications = { screen = AppScreen.Notifications },
                         onNavigateToPost = { postId -> screen = AppScreen.PostDetail(postId) }
+                    )
+
+                    AppScreen.CreatePost -> CreatePostScreen(
+                        userId = loggedInUser?.id ?: "",
+                        onNavigateBack = { screen = AppScreen.Feed },
+                        onPostCreated = { screen = AppScreen.Feed }
                     )
 
                     AppScreen.Profile -> {
@@ -69,10 +81,20 @@ class MainActivity : ComponentActivity() {
                             ProfileScreen(
                                 user = user,
                                 onNavigateBack = { screen = AppScreen.Feed },
-                                onNavigateToFeed = { screen = AppScreen.Feed }
+                                onNavigateToFeed = { screen = AppScreen.Feed },
+                                onNavigateToNotifications = { screen = AppScreen.Notifications }
                             )
                         }
                     }
+
+                    AppScreen.Notifications -> NotificationsScreen(
+                        userId = loggedInUser?.id ?: "",
+                        onNavigateToFeed = { screen = AppScreen.Feed },
+                        onNavigateToExplore = { screen = AppScreen.Explore() },
+                        onNavigateToCamera = { screen = AppScreen.CreatePost },
+                        onNavigateToProfile = { screen = AppScreen.Profile },
+                        onNavigateToPost = { postId -> screen = AppScreen.PostDetail(postId) }
+                    )
 
                     is AppScreen.Explore -> ExploreScreen(
                         userId = loggedInUser?.id ?: "",
@@ -80,6 +102,7 @@ class MainActivity : ComponentActivity() {
                         initialQuery = s.initialQuery,
                         onNavigateToFeed = { screen = AppScreen.Feed },
                         onNavigateToProfile = { screen = AppScreen.Profile },
+                        onNavigateToNotifications = { screen = AppScreen.Notifications },
                         onNavigateToPost = { postId -> screen = AppScreen.PostDetail(postId) }
                     )
 
