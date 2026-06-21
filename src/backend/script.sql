@@ -140,6 +140,17 @@ CREATE TABLE device_tokens (
 );
 
 -- ============================================================
+--  SAVED_POSTS
+-- ============================================================
+
+CREATE TABLE saved_posts (
+    user_id    UUID      NOT NULL REFERENCES users(id)  ON DELETE CASCADE,
+    post_id    UUID      NOT NULL REFERENCES posts(id)  ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, post_id)
+);
+
+-- ============================================================
 --  ÍNDICES  (performance nas queries mais comuns)
 -- ============================================================
 
@@ -156,6 +167,8 @@ CREATE INDEX idx_post_tags_category   ON post_tags(category_id);
 CREATE INDEX idx_post_tags_type       ON post_tags(type_id);
 -- Seguidores
 CREATE INDEX idx_follows_following    ON follows(following_id);
+-- Posts salvos por usuário
+CREATE INDEX idx_saved_posts_user_id  ON saved_posts(user_id);
 
 -- ============================================================
 --  SEED  — Dados iniciais de Categories e Types

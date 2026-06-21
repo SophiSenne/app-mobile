@@ -106,6 +106,16 @@ public sealed record CategoryDto(int Id, string Name, IReadOnlyList<TypeDto>? Ty
 
 public sealed record TypeDto(int Id, int CategoryId, string CategoryName, string Name);
 
+// ============================================================
+//  SAVED POSTS
+// ============================================================
+
+public sealed record SavedPostDto(
+    Guid UserId,
+    string Username,
+    Guid PostId,
+    DateTime CreatedAt);
+
 public sealed record CreateCategoryRequest(string Name);
 
 public sealed record CreateTypeRequest(int CategoryId, string Name);
