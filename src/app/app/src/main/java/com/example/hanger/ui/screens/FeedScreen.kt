@@ -62,7 +62,8 @@ fun FeedScreen(
     onNavigateToProfile: () -> Unit = {},
     onNavigateToExplore: () -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToPost: (String) -> Unit = {}
 ) {
     val feedFactory = remember(userId) {
         object : ViewModelProvider.Factory {
@@ -139,7 +140,8 @@ fun FeedScreen(
                         onRefresh = feedViewModel::refresh,
                         onLoadMore = feedViewModel::loadNextPage,
                         onSaveClick = feedViewModel::toggleSave,
-                        onLikeClick = feedViewModel::toggleLike
+                        onLikeClick = feedViewModel::toggleLike,
+                        onPostClick = onNavigateToPost
                     )
                 }
 
@@ -188,7 +190,8 @@ private fun MasonryFeed(
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onSaveClick: (String) -> Unit,
-    onLikeClick: (String) -> Unit
+    onLikeClick: (String) -> Unit,
+    onPostClick: (String) -> Unit = {}
 ) {
     val gridState = rememberLazyStaggeredGridState()
     val pullState = rememberPullToRefreshState()
@@ -253,7 +256,7 @@ private fun MasonryFeed(
                     PostCard(
                         post = post,
                         indexForPlaceholder = index,
-                        onClick = {},
+                        onClick = { onPostClick(post.id) },
                         onSaveClick = { onSaveClick(post.id) },
                         onLikeClick = { onLikeClick(post.id) }
                     )

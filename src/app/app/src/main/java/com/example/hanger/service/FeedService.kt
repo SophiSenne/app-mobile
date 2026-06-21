@@ -2,6 +2,9 @@ package com.hanger.app.data.network
 
 import com.hanger.app.data.model.AvatarUploadResponse
 import com.hanger.app.data.model.CategoryDto
+import com.hanger.app.data.model.CommentCountResponse
+import com.hanger.app.data.model.CommentDto
+import com.hanger.app.data.model.CreateCommentRequest
 import com.hanger.app.data.model.HasLikedResponse
 import com.hanger.app.data.model.HasSavedResponse
 import com.hanger.app.data.model.LikeCountResponse
@@ -11,6 +14,7 @@ import com.hanger.app.data.model.SavedPostDto
 import com.hanger.app.data.model.User
 import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -18,6 +22,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 /**
@@ -90,6 +95,25 @@ interface ApiService {
         @Path("userId") userId: String,
         @Path("postId") postId: String
     ): Response<HasSavedResponse>
+
+    // ===== Comments =====
+
+    @GET("posts/{postId}/comments")
+    suspend fun getComments(
+        @Path("postId") postId: String,
+        @Query("limit") limit: Int = 20,
+        @Query("offset") offset: Int = 0
+    ): Response<List<CommentDto>>
+
+    @GET("posts/{postId}/comments/count")
+    suspend fun getCommentsCount(@Path("postId") postId: String): Response<CommentCountResponse>
+
+    @POST("posts/{postId}/comments")
+    suspend fun createComment(
+        @Path("postId") postId: String,
+        @Header("X-User-Id") userId: String,
+        @Body body: CreateCommentRequest
+    ): Response<CommentDto>
 
     // ===== Upload =====
 

@@ -1,5 +1,7 @@
 package com.hanger.app.data.repository
 
+import com.hanger.app.data.model.CommentDto
+import com.hanger.app.data.model.CreateCommentRequest
 import com.hanger.app.data.model.PostDto
 import com.hanger.app.data.model.SavedPostDto
 import com.hanger.app.data.network.ApiService
@@ -164,6 +166,46 @@ class PostsRepository(
             if (response.isSuccessful) response.body()?.saved ?: false else false
         } catch (e: Exception) {
             false
+        }
+    }
+
+    suspend fun getPost(postId: String, currentUserId: String = ""): PostDto? = withContext(Dispatchers.IO) {
+        try {
+            val response = api.getPost(postId)
+            if (!response.isSuccessful) return@withContext null
+            var post = response.body() ?: return@withContext null
+            val withAuthor = hydrateAuthors(listOf(post))
+            post = withAuthor.first()
+            val likesResp = api.getLikesCount(postId)
+            if (likesResp.isSuccessful) post = post.copy(likesCount = likesResp.body()?.count ?: 0)
+            if (currentUserId.isNotBlank()) {
+                val likedResp = api.hasLikedPost(postId, currentUserId)
+                if (likedResp.isSuccessful) post = post.copy(isLikedByMe = likedResp.body()?.liked ?: false)
+                val savedResp = api.hasSavedPost(currentUserId, postId)
+                if (savedResp.isSuccessful) post = post.copy(isSavedByMe = savedResp.body()?.saved ?: false)
+            }
+            post
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getComments(postId: String, limit: Int = 20, offset: Int = 0): List<CommentDto> = withContext(Dispatchers.IO) {
+        try {
+            val response = api.getComments(postId, limit, offset)
+            if (response.isSuccessful) response.body().orEmpty() else emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun createComment(postId: String, userId: String, content: String): ActionResult = withContext(Dispatchers.IO) {
+        try {
+            val response = api.createComment(postId, userId, CreateCommentRequest(content))
+            if (response.isSuccessful) ActionResult.Success
+            else ActionResult.Error("Não foi possível comentar (${response.code()})")
+        } catch (e: Exception) {
+            ActionResult.Error(e.message ?: "Falha de conexão.")
         }
     }
 }

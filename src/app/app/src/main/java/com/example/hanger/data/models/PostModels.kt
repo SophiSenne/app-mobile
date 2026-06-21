@@ -89,3 +89,22 @@ data class HasLikedResponse(
     val userId: String,
     val liked: Boolean
 )
+
+data class CommentDto(
+    val id: String,
+    val postId: String,
+    val userId: String,
+    val username: String,
+    val avatarUrl: String?,
+    val content: String,
+    val createdAt: String
+)
+
+data class CreateCommentRequest(
+    val content: String
+)
+
+data class CommentCountResponse(
+    val postId: String,
+    val count: Int
+)

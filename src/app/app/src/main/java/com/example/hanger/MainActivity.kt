@@ -12,10 +12,17 @@ import com.example.hanger.ui.theme.HangerTheme
 import com.hanger.app.data.model.User
 import com.hanger.app.ui.screens.FeedScreen
 import com.hanger.app.ui.screens.LoginScreen
+import com.hanger.app.ui.screens.PostDetailScreen
 import com.hanger.app.ui.screens.ProfileScreen
 import com.hanger.app.ui.screens.RegisterScreen
 
-private enum class AppScreen { LOGIN, REGISTER, FEED, PROFILE }
+private sealed class AppScreen {
+    object Login : AppScreen()
+    object Register : AppScreen()
+    object Feed : AppScreen()
+    object Profile : AppScreen()
+    data class PostDetail(val postId: String) : AppScreen()
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,45 +30,52 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HangerTheme(darkTheme = false) {
-                var screen by remember { mutableStateOf(AppScreen.LOGIN) }
+                var screen by remember { mutableStateOf<AppScreen>(AppScreen.Login) }
                 var loggedInUser by remember { mutableStateOf<User?>(null) }
 
-                when (screen) {
-                    AppScreen.LOGIN -> LoginScreen(
+                when (val s = screen) {
+                    AppScreen.Login -> LoginScreen(
                         onLoginSuccess = { user ->
                             loggedInUser = user
-                            screen = AppScreen.FEED
+                            screen = AppScreen.Feed
                         },
-                        onNavigateToRegister = { screen = AppScreen.REGISTER }
+                        onNavigateToRegister = { screen = AppScreen.Register }
                     )
 
-                    AppScreen.REGISTER -> RegisterScreen(
+                    AppScreen.Register -> RegisterScreen(
                         onRegisterSuccess = { user ->
                             loggedInUser = user
-                            screen = AppScreen.FEED
+                            screen = AppScreen.Feed
                         },
-                        onNavigateToLogin = { screen = AppScreen.LOGIN }
+                        onNavigateToLogin = { screen = AppScreen.Login }
                     )
 
-                    AppScreen.FEED -> FeedScreen(
+                    AppScreen.Feed -> FeedScreen(
                         userInitials = loggedInUser?.username
                             ?.take(2)
                             ?.uppercase()
                             ?: "ME",
                         userId = loggedInUser?.id ?: "",
-                        onNavigateToProfile = { screen = AppScreen.PROFILE }
+                        onNavigateToProfile = { screen = AppScreen.Profile },
+                        onNavigateToPost = { postId -> screen = AppScreen.PostDetail(postId) }
                     )
 
-                    AppScreen.PROFILE -> {
+                    AppScreen.Profile -> {
                         val user = loggedInUser
                         if (user != null) {
                             ProfileScreen(
                                 user = user,
-                                onNavigateBack = { screen = AppScreen.FEED },
-                                onNavigateToFeed = { screen = AppScreen.FEED }
+                                onNavigateBack = { screen = AppScreen.Feed },
+                                onNavigateToFeed = { screen = AppScreen.Feed }
                             )
                         }
                     }
+
+                    is AppScreen.PostDetail -> PostDetailScreen(
+                        postId = s.postId,
+                        userId = loggedInUser?.id ?: "",
+                        onNavigateBack = { screen = AppScreen.Feed }
+                    )
                 }
             }
         }
