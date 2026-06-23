@@ -23,11 +23,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -87,7 +90,8 @@ fun ProfileScreen(
     onNavigateToFeed: () -> Unit = {},
     onNavigateToExplore: () -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val factory = remember(user.id) {
         object : ViewModelProvider.Factory {
@@ -100,6 +104,7 @@ fun ProfileScreen(
     val state by viewModel.uiState.collectAsState()
 
     var selectedTab by remember { mutableStateOf(ProfileTab.POSTS) }
+    var showMenu by remember { mutableStateOf(false) }
 
     val userInitials = user.username.take(2).uppercase()
 
@@ -145,12 +150,39 @@ fun ProfileScreen(
                         .weight(1f)
                         .padding(start = 2.dp)
                 )
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = "Menu",
-                        tint = HangerInk
-                    )
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Menu",
+                            tint = HangerInk
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "Sair",
+                                    color = Color(0xFFCC0000),
+                                    fontSize = 14.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Filled.ExitToApp,
+                                    contentDescription = null,
+                                    tint = Color(0xFFCC0000)
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                onLogout()
+                            }
+                        )
+                    }
                 }
             }
 

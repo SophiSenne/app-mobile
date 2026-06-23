@@ -144,27 +144,27 @@ interface ApiService {
 
     // ===== Notifications =====
 
-    @GET("users/{userId}/notifications")
+    @GET("notifications")
     suspend fun getNotifications(
-        @Path("userId") userId: String,
+        @Header("X-User-Id") userId: String,
         @Query("limit") limit: Int = 30,
         @Query("offset") offset: Int = 0
     ): Response<List<NotificationDto>>
 
-    @GET("users/{userId}/notifications/unread-count")
+    @GET("notifications/unread-count")
     suspend fun getUnreadNotificationsCount(
-        @Path("userId") userId: String
+        @Header("X-User-Id") userId: String
     ): Response<NotificationCountResponse>
 
-    @PUT("users/{userId}/notifications/{notificationId}/read")
+    @PUT("notifications/{notificationId}/read")
     suspend fun markNotificationRead(
-        @Path("userId") userId: String,
+        @Header("X-User-Id") userId: String,
         @Path("notificationId") notificationId: String
     ): Response<Unit>
 
-    @PUT("users/{userId}/notifications/read-all")
+    @PUT("notifications/read-all")
     suspend fun markAllNotificationsRead(
-        @Path("userId") userId: String
+        @Header("X-User-Id") userId: String
     ): Response<Unit>
 
     // ===== Search =====

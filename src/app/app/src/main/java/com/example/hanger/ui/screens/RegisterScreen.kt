@@ -31,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,9 +70,13 @@ import com.example.hanger.ui.theme.HangerPlum
 import com.hanger.app.ui.auth.AuthViewModel
 import kotlinx.coroutines.launch
 
+// ─────────────────────────────────────────────────────────────
+// Passo 1 — Dados da conta
+// ─────────────────────────────────────────────────────────────
+
 @Composable
-fun RegisterScreen(
-    onRegisterSuccess: (User) -> Unit,
+fun RegisterStep1Screen(
+    onNext: (firstName: String, lastName: String, username: String, email: String, password: String) -> Unit,
     onNavigateToLogin: () -> Unit,
     viewModel: AuthViewModel = viewModel()
 ) {
@@ -80,39 +85,15 @@ fun RegisterScreen(
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var acceptedTerms by remember { mutableStateOf(false) }
-    var bio by remember { mutableStateOf("") }
-    var avatarUrl by remember { mutableStateOf("") }
-    var locationCity by remember { mutableStateOf("") }
-    var pickedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var isUploadingAvatar by remember { mutableStateOf(false) }
-    var avatarUploadError by remember { mutableStateOf<String?>(null) }
-
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val userRepository = remember { UserRepository() }
-
-    val imagePicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            pickedImageUri = it
-            avatarUploadError = null
-            scope.launch {
-                isUploadingAvatar = true
-                when (val result = userRepository.uploadAvatar(it, context)) {
-                    is UploadResult.Success -> avatarUrl = result.url
-                    is UploadResult.Error -> avatarUploadError = result.message
-                }
-                isUploadingAvatar = false
-            }
-        }
-    }
 
     val state = viewModel.uiState
 
-    LaunchedEffect(state.loggedInUser) {
-        state.loggedInUser?.let { onRegisterSuccess(it) }
+    fun validate(): String? = when {
+        firstName.isBlank() || lastName.isBlank() -> "Preencha nome e sobrenome"
+        username.isBlank() -> "Informe um nome de usuário"
+        email.isBlank() -> "Informe o e-mail"
+        password.length < 8 -> "A senha deve ter no mínimo 8 caracteres"
+        else -> null
     }
 
     Column(
@@ -121,44 +102,13 @@ fun RegisterScreen(
             .background(HangerCream)
             .verticalScroll(rememberScrollState())
     ) {
-        // ===== Cabeçalho escuro =====
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(HangerBlack)
-                .padding(top = 36.dp, bottom = 28.dp, start = 24.dp, end = 24.dp)
-        ) {
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onNavigateToLogin) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = HangerCream)
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        "HANGER",
-                        color = HangerCream,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 4.sp
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    "Criar sua conta",
-                    color = HangerCream,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "Junte-se à comunidade de moda ✨",
-                    color = HangerGold,
-                    fontSize = 12.sp
-                )
-            }
-        }
+        RegisterHeader(
+            title = "Criar sua conta",
+            subtitle = "Junte-se à comunidade de moda ✨",
+            step = 1,
+            onBack = onNavigateToLogin
+        )
 
-        // ===== Formulário =====
         Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp)) {
 
             Row {
@@ -205,39 +155,115 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Seção: Personalizar perfil ──────────────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0x22000000), thickness = 0.5.dp)
-                Text(
-                    text = "Personalizar perfil",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = HangerGray,
-                    letterSpacing = 0.8.sp
-                )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0x22000000), thickness = 0.5.dp)
+            state.errorMessage?.let {
+                ErrorBanner(it)
+                Spacer(Modifier.height(12.dp))
             }
 
-            Spacer(Modifier.height(16.dp))
+            PrimaryButton(
+                text = "CONTINUAR",
+                isLoading = false,
+                onClick = {
+                    val error = validate()
+                    if (error != null) {
+                        viewModel.setError(error)
+                    } else {
+                        viewModel.clearError()
+                        onNext(firstName, lastName, username, email, password)
+                    }
+                }
+            )
 
-            // Avatar: círculo clicável com preview + badge de câmera
+            Spacer(Modifier.height(18.dp))
+
+            AuthSwitchRow(
+                question = "Já tem conta?",
+                actionText = "Entrar",
+                onClick = onNavigateToLogin
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Passo 2 — Personalização do perfil
+// ─────────────────────────────────────────────────────────────
+
+@Composable
+fun RegisterStep2Screen(
+    firstName: String,
+    lastName: String,
+    username: String,
+    email: String,
+    password: String,
+    onRegisterSuccess: (User) -> Unit,
+    onBack: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
+) {
+    var bio by remember { mutableStateOf("") }
+    var locationCity by remember { mutableStateOf("") }
+    var avatarUrl by remember { mutableStateOf("") }
+    var acceptedTerms by remember { mutableStateOf(false) }
+    var pickedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var isUploadingAvatar by remember { mutableStateOf(false) }
+    var avatarUploadError by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val userRepository = remember { UserRepository() }
+
+    val imagePicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let {
+            pickedImageUri = it
+            avatarUploadError = null
+            scope.launch {
+                isUploadingAvatar = true
+                when (val result = userRepository.uploadAvatar(it, context)) {
+                    is UploadResult.Success -> avatarUrl = result.url
+                    is UploadResult.Error -> avatarUploadError = result.message
+                }
+                isUploadingAvatar = false
+            }
+        }
+    }
+
+    val state = viewModel.uiState
+
+    LaunchedEffect(state.loggedInUser) {
+        state.loggedInUser?.let { onRegisterSuccess(it) }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(HangerCream)
+            .verticalScroll(rememberScrollState())
+    ) {
+        RegisterHeader(
+            title = "Personalizar perfil",
+            subtitle = "Mostre seu estilo para a comunidade 🌟",
+            step = 2,
+            onBack = onBack
+        )
+
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp)) {
+
             val avatarInitials = run {
                 val f = firstName.take(1)
                 val l = lastName.take(1)
                 if (f.isNotBlank() || l.isNotBlank()) "$f$l".uppercase()
                 else username.take(2).uppercase().ifEmpty { "?" }
             }
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .size(84.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
                         .background(HangerPlum)
                         .clickable(enabled = !isUploadingAvatar) {
@@ -247,24 +273,24 @@ fun RegisterScreen(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    // Imagem ou iniciais
                     if (pickedImageUri != null) {
                         AsyncImage(
                             model = pickedImageUri,
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
                             contentScale = ContentScale.Crop
                         )
                     } else {
                         Text(
                             text = avatarInitials,
-                            fontSize = 24.sp,
+                            fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = HangerGold
                         )
                     }
 
-                    // Overlay de carregamento
                     if (isUploadingAvatar) {
                         Box(
                             modifier = Modifier
@@ -280,12 +306,11 @@ fun RegisterScreen(
                         }
                     }
 
-                    // Badge de câmera (canto inferior direito)
                     if (!isUploadingAvatar) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .size(26.dp)
+                                .size(28.dp)
                                 .clip(CircleShape)
                                 .background(HangerPink)
                                 .border(1.5.dp, HangerCream, CircleShape),
@@ -295,13 +320,13 @@ fun RegisterScreen(
                                 imageVector = Icons.Filled.CameraAlt,
                                 contentDescription = "Escolher foto",
                                 tint = Color.White,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(15.dp)
                             )
                         }
                     }
                 }
 
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = when {
@@ -314,6 +339,10 @@ fun RegisterScreen(
                     color = if (avatarUploadError != null) HangerPink else HangerGray
                 )
             }
+
+            Spacer(Modifier.height(24.dp))
+
+            SectionDivider("Sobre você")
 
             Spacer(Modifier.height(16.dp))
 
@@ -333,9 +362,8 @@ fun RegisterScreen(
                 label = "Cidade"
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // Checkbox de termos
             Row(
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier
@@ -348,7 +376,8 @@ fun RegisterScreen(
                         .background(
                             if (acceptedTerms) HangerPink else Color.Transparent,
                             RoundedCornerShape(4.dp)
-                        ),
+                        )
+                        .border(1.dp, if (acceptedTerms) HangerPink else HangerGray, RoundedCornerShape(4.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     if (acceptedTerms) {
@@ -369,7 +398,7 @@ fun RegisterScreen(
                 )
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
             state.errorMessage?.let {
                 ErrorBanner(it)
@@ -395,27 +424,117 @@ fun RegisterScreen(
             )
 
             Spacer(Modifier.height(18.dp))
-
-            AuthSwitchRow(
-                question = "Já tem conta?",
-                actionText = "Entrar",
-                onClick = onNavigateToLogin
-            )
         }
     }
 }
 
-@Preview(
-    name = "Login Screen",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
+// ─────────────────────────────────────────────────────────────
+// Componentes compartilhados
+// ─────────────────────────────────────────────────────────────
+
 @Composable
-fun RegisterScreenPreview() {
+private fun RegisterHeader(
+    title: String,
+    subtitle: String,
+    step: Int,
+    onBack: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(HangerBlack)
+            .padding(top = 36.dp, bottom = 24.dp, start = 24.dp, end = 24.dp)
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = HangerCream)
+                }
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    "HANGER",
+                    color = HangerCream,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 4.sp
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(title, color = HangerCream, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
+            Text(subtitle, color = HangerGold, fontSize = 12.sp)
+            Spacer(Modifier.height(16.dp))
+            StepIndicator(current = step, total = 2)
+        }
+    }
+}
+
+@Composable
+private fun StepIndicator(current: Int, total: Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "$current de $total",
+            color = HangerGray,
+            fontSize = 11.sp
+        )
+        LinearProgressIndicator(
+            progress = { current.toFloat() / total.toFloat() },
+            modifier = Modifier
+                .weight(1f)
+                .height(3.dp)
+                .clip(RoundedCornerShape(50)),
+            color = HangerGold,
+            trackColor = Color(0x33FFFFFF)
+        )
+    }
+}
+
+@Composable
+private fun SectionDivider(label: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0x22000000), thickness = 0.5.dp)
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = HangerGray,
+            letterSpacing = 0.8.sp
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0x22000000), thickness = 0.5.dp)
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview(name = "Register Step 1", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun RegisterStep1Preview() {
     MaterialTheme {
-        RegisterScreen(
+        RegisterStep1Screen(onNext = { _, _, _, _, _ -> }, onNavigateToLogin = {})
+    }
+}
+
+@Preview(name = "Register Step 2", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun RegisterStep2Preview() {
+    MaterialTheme {
+        RegisterStep2Screen(
+            firstName = "Ana",
+            lastName = "Lima",
+            username = "analima",
+            email = "ana@example.com",
+            password = "senha123",
             onRegisterSuccess = {},
-            onNavigateToLogin = {}
+            onBack = {}
         )
     }
 }

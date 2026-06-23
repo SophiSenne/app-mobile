@@ -21,16 +21,25 @@ import com.example.hanger.ui.theme.HangerTheme
 import com.example.hanger.ui.screens.ExploreScreen
 import com.example.hanger.ui.screens.NotificationsScreen
 import com.hanger.app.data.model.User
+import com.hanger.app.ui.auth.AuthViewModel
 import com.hanger.app.ui.screens.CreatePostScreen
 import com.hanger.app.ui.screens.FeedScreen
 import com.hanger.app.ui.screens.LoginScreen
 import com.hanger.app.ui.screens.PostDetailScreen
 import com.hanger.app.ui.screens.ProfileScreen
-import com.hanger.app.ui.screens.RegisterScreen
+import com.hanger.app.ui.screens.RegisterStep1Screen
+import com.hanger.app.ui.screens.RegisterStep2Screen
 
 private sealed class AppScreen {
     object Login : AppScreen()
-    object Register : AppScreen()
+    object RegisterStep1 : AppScreen()
+    data class RegisterStep2(
+        val firstName: String,
+        val lastName: String,
+        val username: String,
+        val email: String,
+        val password: String
+    ) : AppScreen()
     object Feed : AppScreen()
     object Profile : AppScreen()
     object CreatePost : AppScreen()
@@ -42,6 +51,7 @@ private sealed class AppScreen {
 class MainActivity : ComponentActivity() {
 
     private val unreadCountVm: UnreadCountViewModel by viewModels()
+    private val authVm: AuthViewModel by viewModels()
 
     private val requestNotificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op */ }
@@ -72,16 +82,31 @@ class MainActivity : ComponentActivity() {
                             startPollingService(user.id)
                             screen = AppScreen.Feed
                         },
-                        onNavigateToRegister = { screen = AppScreen.Register }
+                        onNavigateToRegister = { screen = AppScreen.RegisterStep1 },
+                        viewModel = authVm
                     )
 
-                    AppScreen.Register -> RegisterScreen(
+                    AppScreen.RegisterStep1 -> RegisterStep1Screen(
+                        onNext = { firstName, lastName, username, email, password ->
+                            screen = AppScreen.RegisterStep2(firstName, lastName, username, email, password)
+                        },
+                        onNavigateToLogin = { screen = AppScreen.Login },
+                        viewModel = authVm
+                    )
+
+                    is AppScreen.RegisterStep2 -> RegisterStep2Screen(
+                        firstName = s.firstName,
+                        lastName = s.lastName,
+                        username = s.username,
+                        email = s.email,
+                        password = s.password,
                         onRegisterSuccess = { user ->
                             loggedInUser = user
                             startPollingService(user.id)
                             screen = AppScreen.Feed
                         },
-                        onNavigateToLogin = { screen = AppScreen.Login }
+                        onBack = { screen = AppScreen.RegisterStep1 },
+                        viewModel = authVm
                     )
 
                     AppScreen.Feed -> FeedScreen(
@@ -112,7 +137,12 @@ class MainActivity : ComponentActivity() {
                                 hasNotifications = hasNotifications,
                                 onNavigateBack = { screen = AppScreen.Feed },
                                 onNavigateToFeed = { screen = AppScreen.Feed },
-                                onNavigateToNotifications = { screen = AppScreen.Notifications }
+                                onNavigateToNotifications = { screen = AppScreen.Notifications },
+                                onLogout = {
+                                    authVm.logout()
+                                    loggedInUser = null
+                                    screen = AppScreen.Login
+                                }
                             )
                         }
                     }

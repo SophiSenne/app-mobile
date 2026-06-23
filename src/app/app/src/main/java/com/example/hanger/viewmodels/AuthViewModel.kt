@@ -69,6 +69,8 @@ class AuthViewModel(
         uiState = uiState.copy(isLoading = true, errorMessage = null)
         viewModelScope.launch {
             when (val result = repository.register(
+                firstName = firstName,
+                lastName = lastName,
                 username = username,
                 email = email,
                 password = password,
@@ -90,5 +92,13 @@ class AuthViewModel(
 
     fun clearError() {
         uiState = uiState.copy(errorMessage = null)
+    }
+
+    fun setError(message: String) {
+        uiState = uiState.copy(errorMessage = message)
+    }
+
+    fun logout() {
+        uiState = AuthUiState()
     }
 }

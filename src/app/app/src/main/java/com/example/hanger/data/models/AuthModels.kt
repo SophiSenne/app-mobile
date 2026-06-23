@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 // ===== Requests =====
 
 data class RegisterRequest(
+    val firstName: String,
+    val lastName: String,
     val username: String,
     val email: String,
     val password: String,

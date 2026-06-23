@@ -278,7 +278,7 @@ private fun NotificationRow(
     ) {
         // Avatar
         Box(modifier = Modifier.size(44.dp)) {
-            if (notification.actorAvatarUrl != null) {
+            if (!notification.actorAvatarUrl.isNullOrBlank()) {
                 AsyncImage(
                     model = notification.actorAvatarUrl,
                     contentDescription = null,
