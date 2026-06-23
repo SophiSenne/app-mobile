@@ -51,6 +51,10 @@ O contraste entre os dois pesos cria hierarquia visual sem precisar de múltipla
 
 Conecta o ato cotidiano de se vestir com narrativa pessoal, que é exatamente o que a rede social propõe: cada look publicado é um fragmento da identidade de quem o veste.
 
+#### Protótipo Inicial
+
+O protótipo inicial construído pelo Claude antes do desenvolvimento do app de fato está em [hanger_app_v4.html](./hanger_app_v4.html).
+
 ## 3. Tecnologias
 
 ### Mobile

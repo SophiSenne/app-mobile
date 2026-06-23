@@ -59,4 +59,4 @@ Veja [docs/docs.md](docs/docs.md) para a documentação técnica completa: arqui
 
 ## Vídeo Demonstrativo
 
-Veja o vídeo demonstrativo do app [aqui]().
+Veja o vídeo demonstrativo do app [aqui](https://docs.google.com/videos/d/1tMDB2Z-SiH4AHfkc6Unlb4TF2J-nk8iWWmDesxKVn6g/edit?usp=sharing).
